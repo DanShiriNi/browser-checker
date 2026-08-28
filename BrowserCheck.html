@@ -1,0 +1,3154 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Браузеры — оценка и тир-лист</title>
+    <style>
+        /* ─── RESET & BASE ─── */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app {
+            max-width: 800px;
+            width: 100%;
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 20px 24px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ─── HEADER ─── */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .app-header h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header h1 small {
+            font-weight: 400;
+            font-size: 0.9rem;
+            color: #999;
+            letter-spacing: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s, opacity 0.2s;
+            background: #444;
+            color: #eee;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: #555;
+            transform: scale(1.02);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn svg {
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3b82f6;
+        }
+
+        .btn-purple {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .btn-purple:hover {
+            background: #8b5cf6;
+        }
+
+        .btn-cyan {
+            background: #004ab2;
+            color: #fff;
+        }
+
+        .btn-cyan:hover {
+            background: #4071b6;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #22c55e;
+        }
+
+        .btn-secondary {
+            background: #3a3a3a;
+            color: #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #4a4a4a;
+        }
+
+        /* ─── VIEWPORT (form) ─── */
+        #formView {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        #formView.active {
+            display: flex;
+        }
+
+        .viewport-wrap {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #222;
+            border: 1px solid #3a3a3a;
+        }
+
+        .slider {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+
+        .view-row {
+            display: flex;
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .view-cell {
+            position: relative;
+            flex: 0 0 100%;
+            height: 100%;
+            padding: 36px;
+            background: #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .cell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3a3a3a;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .cell-header .title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cell-header .title .cat-name {
+            color: #fff;
+        }
+
+        .browser-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #999;
+            font-weight: 400;
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .browser-info:hover {
+            color: #60a5fa;
+        }
+
+        .browser-info .browser-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            border-radius: 4px;
+            flex-shrink: 0;
+            padding: 2px;
+        }
+
+        .browser-info .browser-name {
+            white-space: nowrap;
+        }
+
+        .cell-header .badge {
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: #3a3a3a;
+            color: #aaa;
+            padding: 2px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+
+        .cell-body {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 4px 0 6px;
+            min-height: 0;
+        }
+
+        .cell-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .cell-body::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        .cell-body::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        /* ─── FORM ELEMENTS ─── */
+        .field-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px 8px 16px;
+            background: #333;
+            border-radius: 12px;
+            border: 1px solid #3d3d3d;
+            flex-shrink: 0;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .field-row:hover {
+            background: #383838;
+        }
+
+        .field-label {
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: #e8e8e8;
+            flex: 1;
+        }
+
+        .field-label small {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: #888;
+            margin-left: 6px;
+        }
+
+        /* ─── Стиль для кнопки-подсказки «?» (синий кружок) ─── */
+        .help-btn {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: #fff;
+            text-align: center;
+            line-height: 10px;
+            font-size: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 5px;
+            vertical-align: super;
+            transition: background 0.2s, transform 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .help-btn:hover {
+            background: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .help-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Toggle */
+        .toggle-custom {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-custom input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .toggle-custom .track {
+            position: absolute;
+            inset: 0;
+            background: #555;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: background 0.25s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-custom .track .thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            transition: transform 0.25s ease, background 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+            color: #1e293b;
+            user-select: none;
+        }
+
+        .toggle-custom input:checked+.track {
+            background: #2563eb;
+        }
+
+        .toggle-custom input:checked+.track .thumb {
+            transform: translateX(20px);
+            background: #fff;
+            color: #2563eb;
+        }
+
+        .toggle-status {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #999;
+            min-width: 36px;
+            text-align: right;
+        }
+
+        /* Number / Float input */
+        .field-input {
+            width: 80px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #4a4a4a;
+            background: #222;
+            color: #eee;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .field-input::placeholder {
+            color: #666;
+            font-weight: 400;
+            font-size: 0.75rem;
+        }
+
+        .field-unit {
+            font-size: 0.75rem;
+            color: #888;
+            flex-shrink: 0;
+            min-width: 30px;
+        }
+
+        .field-derived {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #aaa;
+            flex-shrink: 0;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .field-derived.yes {
+            color: #4ade80;
+        }
+
+        .field-derived.no {
+            color: #f87171;
+        }
+
+        /* Smiley radio */
+        .smiley-group {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .smiley-group input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .smiley-group label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3a3a3a;
+            font-size: 22px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s, border 0.2s;
+            opacity: 0.4;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .smiley-group label:hover {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+
+        .smiley-group input[type="radio"]:checked+label {
+            opacity: 1;
+            background: #2a3a5a;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px #2563eb44;
+            transform: scale(1.08);
+        }
+
+        .smiley-derived {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #aaa;
+            flex-shrink: 0;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .smiley-derived.yes {
+            color: #4ade80;
+        }
+
+        .smiley-derived.no {
+            color: #f87171;
+        }
+
+        /* ─── NAV ARROWS ─── */
+        .nav-arrow {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(50, 50, 50, 0.85);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: left 0.25s ease, right 0.25s ease, top 0.25s ease, bottom 0.25s ease, opacity 0.25s ease, background 0.2s;
+            z-index: 10;
+            user-select: none;
+            opacity: 0.7;
+            color: #ddd;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(70, 70, 70, 0.95);
+            opacity: 1;
+        }
+
+        .nav-arrow:active {
+            opacity: 0.5;
+        }
+
+        .nav-arrow svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: #ddd;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            display: block;
+        }
+
+        .nav-arrow:hover svg {
+            stroke: #fff;
+        }
+
+        .nav-arrow-left {
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 0 50% 50% 0;
+            border-left: none;
+            padding-left: 4px;
+        }
+
+        .nav-arrow-left:hover {
+            left: 0;
+        }
+
+        .nav-arrow-right {
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50% 0 0 50%;
+            border-right: none;
+            padding-right: 4px;
+        }
+
+        .nav-arrow-right:hover {
+            right: 0;
+        }
+
+        .nav-arrow-up {
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 50% 50%;
+            border-top: none;
+            padding-top: 4px;
+        }
+
+        .nav-arrow-up:hover {
+            top: 0;
+        }
+
+        .nav-arrow-down {
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50% 50% 0 0;
+            border-bottom: none;
+            padding-bottom: 4px;
+        }
+
+        .nav-arrow-down:hover {
+            bottom: 0;
+        }
+
+        .nav-arrow-hidden {
+            display: none !important;
+        }
+
+        /* ─── RESULTS VIEW ─── */
+        #resultsView {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        #resultsView.active {
+            display: flex;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            left: 0;
+        }
+
+        .results-header h2 {
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        /* ─── ВКЛАДКИ (табы) ─── */
+        .results-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            flex-shrink: 0;
+            position: sticky;
+            left: 0;
+        }
+
+        .results-tabs .tab-btn {
+            padding: 8px 18px;
+            border: none;
+            background: #2a2a2a;
+            color: #aaa;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            text-align: center;
+            border-right: 1px solid #3a3a3a;
+        }
+
+        .results-tabs .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .results-tabs .tab-btn:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .results-tabs .tab-btn:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .results-tabs .tab-btn:hover {
+            background: #3a3a3a;
+            color: #eee;
+        }
+
+        .results-tabs .tab-btn.active {
+            background: #555;
+            color: #eee;
+        }
+
+        .results-tabs .tab-btn.active:hover {
+            background: #888;
+            color: #fff;
+        }
+
+        .results-content {
+            flex: 1;
+            padding: 0;
+        }
+
+        .results-content::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .results-content::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .results-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ─── SUMMARY TABLE ─── */
+
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            min-width: 600px;
+            border: 1px solid #3a3a3a;
+            background: #222;
+        }
+
+        .table-wrap th {
+            background: #333;
+            color: #ccc;
+            font-weight: 600;
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 2px solid #444;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .table-wrap th:first-child {
+            min-width: 200px;
+        }
+
+        .table-wrap th .th-browser {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            color: #ccc;
+        }
+
+        .table-wrap th .th-browser .th-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            border-radius: 3px;
+            flex-shrink: 0;
+            padding: 1px;
+        }
+
+        .table-wrap th .th-browser .th-link {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: flex;
+            align-content: center;
+            gap: 6px;
+        }
+
+        .table-wrap th .th-browser .th-link:hover {
+            color: #60a5fa;
+        }
+
+        .table-wrap td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #333;
+            color: #ddd;
+            vertical-align: middle;
+        }
+
+        .table-wrap tr:hover td {
+            background: #2a2a2a;
+        }
+
+        .table-wrap .param-name {
+            font-weight: 500;
+            color: #e8e8e8;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .table-wrap .param-cat {
+            font-size: 0.6rem;
+            color: #888;
+            display: block;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .table-wrap .val-yes {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .table-wrap .val-no {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .table-wrap .val-smiley {
+            font-weight: 500;
+        }
+
+        .table-wrap .val-number {
+            font-weight: 500;
+        }
+
+        .table-wrap .val-derived {
+            font-size: 0.7rem;
+            color: #999;
+            margin-left: 4px;
+        }
+
+        .table-wrap .val-derived.good {
+            color: #4ade80;
+        }
+
+        .table-wrap .val-derived.bad {
+            color: #f87171;
+        }
+
+        /* ─── TIER LIST ─── */
+        .tier-list-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tier-row {
+            display: flex;
+            align-items: stretch;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            overflow: hidden;
+            min-height: 52px;
+        }
+
+        .tier-row .tier-label {
+            width: 200px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            text-align: center;
+            padding: 0 6px;
+            word-break: normal;
+            white-space: wrap;
+            line-height: 1.2;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .tier-row[data-tier="5+ (лучший браузер)"] .tier-label {
+            background-color: #2ecc71;
+        }
+
+        .tier-row[data-tier="5"] .tier-label {
+            background-color: #f1c40f;
+        }
+
+        .tier-row[data-tier="5 (без защиты)"] .tier-label {
+            background-color: #f39c12;
+        }
+
+        .tier-row[data-tier="4"] .tier-label {
+            background-color: #e67e22;
+        }
+
+        .tier-row[data-tier="4 (без защиты)"] .tier-label {
+            background-color: #d35400;
+        }
+
+        .tier-row[data-tier="3"] .tier-label {
+            background-color: #e74c3c;
+        }
+
+        .tier-row[data-tier="2 (самые ужасные)"] .tier-label {
+            background-color: #922B21;
+        }
+
+        .tier-row .tier-items {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            min-height: 52px;
+            background: #2a2a2a;
+            transition: background 0.15s;
+        }
+
+        .tier-row.drag-over .tier-items {
+            background: #3a3a3a;
+        }
+
+        .tier-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #444;
+            color: #eee;
+            padding: 6px 14px 6px 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: grab;
+            user-select: none;
+            border: 1px solid #555;
+            border-radius: 6px;
+            transition: background 0.15s, transform 0.1s, border-color 0.2s;
+            touch-action: none;
+            text-decoration: none;
+        }
+
+        .tier-item:hover {
+            background: #555;
+            border-color: #666;
+        }
+
+        .tier-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .tier-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.92);
+        }
+
+        .tier-item .tier-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            border-radius: 3px;
+            flex-shrink: 0;
+            padding: 1px;
+        }
+
+        .tier-empty {
+            color: #666;
+            font-size: 0.8rem;
+            font-weight: 400;
+            padding: 4px 0;
+        }
+
+        /* ─── TOP 5 ─── */
+        .top5-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .top5-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 14px 18px;
+            border: 1px solid #3a3a3a;
+        }
+
+        .top5-section h4 {
+            font-weight: 600;
+            color: #ccc;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .top5-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .top5-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: #333;
+            border-radius: 6px;
+            color: #ddd;
+            font-size: 0.9rem;
+        }
+
+        .top5-item .rank {
+            font-weight: 700;
+            color: #60a5fa;
+            margin-right: 10px;
+            width: 30px;
+        }
+
+        .top5-item .top5-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 70%;
+        }
+
+        .top5-item .top5-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            border-radius: 3px;
+            flex-shrink: 0;
+            padding: 2px;
+        }
+
+        /* Ссылки только в первой пятёрке */
+        .top5-link {
+            text-decoration: none;
+            color: #ddd;
+            transition: color 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top5-link:hover {
+            color: #60a5fa;
+        }
+
+        .top5-text {
+            color: #ddd;
+        }
+
+        .top5-item .score {
+            font-weight: 600;
+            color: #4ade80;
+        }
+
+        .top5-divider {
+            border: none;
+            border-top: 2px dashed #555;
+            margin: 8px 0;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 720px) {
+            .app {
+                padding: 12px 12px 14px;
+                border-radius: 16px;
+                max-height: 100vh;
+            }
+
+            .app-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .app-header h1 small {
+                font-size: 0.7rem;
+            }
+
+            .btn {
+                padding: 7px 14px;
+                font-size: 0.8rem;
+            }
+
+            .view-cell {
+                padding: 12px;
+            }
+
+            .cell-header .title {
+                font-size: 0.95rem;
+            }
+
+            .field-row {
+                padding: 6px 10px 6px 12px;
+            }
+
+            .field-label {
+                font-size: 0.8rem;
+            }
+
+            .toggle-custom {
+                width: 40px;
+                height: 24px;
+            }
+
+            .toggle-custom .track .thumb {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+                top: 3px;
+                left: 3px;
+            }
+
+            .toggle-custom input:checked+.track .thumb {
+                transform: translateX(16px);
+            }
+
+            .field-input {
+                width: 60px;
+                font-size: 0.8rem;
+                padding: 4px 6px;
+            }
+
+            .smiley-group label {
+                width: 34px;
+                height: 34px;
+                font-size: 18px;
+            }
+
+            .nav-arrow {
+                width: 34px;
+                height: 34px;
+            }
+
+            .nav-arrow svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .tier-row .tier-label {
+                width: 140px;
+                font-size: 0.75rem;
+            }
+
+            .tier-item {
+                font-size: 0.75rem;
+                padding: 4px 10px 4px 8px;
+            }
+
+            .tier-item .tier-icon {
+                width: 16px;
+                height: 16px;
+            }
+
+            .table-wrap table {
+                font-size: 0.7rem;
+                min-width: 500px;
+            }
+
+            .table-wrap th,
+            .table-wrap td {
+                padding: 4px 6px;
+            }
+
+            .table-wrap th .th-browser .th-icon {
+                width: 16px;
+                height: 16px;
+            }
+
+            .results-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .results-tabs .tab-btn {
+                font-size: 0.75rem;
+                padding: 5px 12px;
+            }
+
+            .top5-item {
+                font-size: 0.8rem;
+            }
+
+            .top5-item .top5-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .browser-info .browser-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .browser-info .browser-name {
+                font-size: 0.75rem;
+            }
+
+            .help-btn {
+                width: 8px;
+                height: 8px;
+                line-height: 8px;
+                font-size: 6px;
+                margin-left: 4px;
+            }
+        }
+
+        @media (max-width: 440px) {
+            .app-header h1 {
+                font-size: 1rem;
+            }
+
+            .view-cell {
+                padding: 8px;
+            }
+
+            .field-row {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .field-label {
+                flex: 1 1 100%;
+            }
+
+            .smiley-group label {
+                width: 30px;
+                height: 30px;
+                font-size: 15px;
+            }
+
+            .nav-arrow {
+                width: 28px;
+                height: 28px;
+            }
+
+            .nav-arrow svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .table-wrap th:first-child {
+                min-width: 120px;
+            }
+
+            .tier-row .tier-label {
+                width: 100px;
+                font-size: 0.65rem;
+            }
+
+            .tier-item {
+                font-size: 0.7rem;
+                padding: 3px 8px 3px 6px;
+            }
+
+            .tier-item .tier-icon {
+                width: 14px;
+                height: 14px;
+            }
+
+            .help-btn {
+                width: 6px;
+                height: 6px;
+                line-height: 6px;
+                font-size: 5px;
+                margin-left: 3px;
+            }
+        }
+
+        /* ─── SCROLLBAR GLOBAL ─── */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        /* ─── UTILITY ─── */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .gap-8 {
+            gap: 8px;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        #importFileInput {
+            display: none;
+        }
+
+        table {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app" id="app">
+
+        <!-- ─── HEADER ─── -->
+        <header class="app-header">
+            <h1>Браузеры</h1>
+            <h1><small>ОЦЕНКА · ТИР-ЛИСТ</small></h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="resetAllBtn">↺ Сбросить всё</button>
+                <button class="btn btn-primary" id="mainActionBtn">📊 Результаты</button>
+            </div>
+        </header>
+
+        <!-- ─── FORM VIEW ─── -->
+        <div id="formView" class="active">
+            <div class="viewport-wrap" id="viewportWrap">
+                <div class="slider" id="slider"></div>
+            </div>
+        </div>
+
+        <!-- ─── RESULTS VIEW ─── -->
+        <div id="resultsView">
+            <div class="results-header">
+                <h2>📊 Результаты</h2>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" id="importBtn">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        Импортировать сохранение
+                    </button>
+                    <button class="btn btn-success" id="exportBtn">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Сохранить в CSV
+                    </button>
+                </div>
+            </div>
+            <div class="results-tabs">
+                <button class="tab-btn active" data-tab="summary">📋 Сводка</button>
+                <button class="tab-btn" data-tab="tierlist">🏆 Тир-лист</button>
+                <button class="tab-btn" data-tab="top5">⭐ Топ-5</button>
+            </div>
+            <div class="results-content">
+                <div class="tab-panel active" id="panel-summary">
+                    <div class="table-wrap" id="summaryTableWrap"></div>
+                </div>
+                <div class="tab-panel" id="panel-tierlist">
+                    <div class="tier-list-wrap" id="tierListWrap"></div>
+                </div>
+                <div class="tab-panel" id="panel-top5">
+                    <div class="top5-wrap" id="top5Wrap"></div>
+                </div>
+            </div>
+        </div>
+
+        <input type="file" id="importFileInput" accept=".csv" />
+    </div>
+
+    <div style="display: none;">
+        <!-- Microsoft Edge -->
+        <svg id="icon-edge" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_2)">
+                <path
+                    d="M231 190.5C227.6 192.3 224.1 193.9 220.5 195.2C209 199.5 196.9 201.7 184.6 201.7C137.3 201.7 96.1 169.2 96.1 127.4C96.2 116 102.5 105.5 112.5 100.1C69.7 101.9 58.7 146.5 58.7 172.6C58.7 246.5 126.8 254 141.5 254C149.4 254 161.3 251.7 168.5 249.4L169.8 249C197.4 239.5 220.8 220.9 236.4 196.2C237.6 194.3 237 191.9 235.2 190.7C233.9 189.9 232.3 189.8 231 190.5Z"
+                    fill="url(#paint0_linear_1_2)" />
+                <path opacity="0.35"
+                    d="M231 190.5C227.6 192.3 224.1 193.9 220.5 195.2C209 199.5 196.9 201.7 184.6 201.7C137.3 201.7 96.1 169.2 96.1 127.4C96.2 116 102.5 105.5 112.5 100.1C69.7 101.9 58.7 146.5 58.7 172.6C58.7 246.5 126.8 254 141.5 254C149.4 254 161.3 251.7 168.5 249.4L169.8 249C197.4 239.5 220.8 220.9 236.4 196.2C237.6 194.3 237 191.9 235.2 190.7C233.9 189.9 232.3 189.8 231 190.5Z"
+                    fill="url(#paint1_radial_1_2)" />
+                <path
+                    d="M105.7 241.4C96.8 235.9 89.1 228.6 83 220.1C56.7 184.1 64.6 133.6 100.6 107.3C104.4 104.6 108.3 102.1 112.5 100.1C115.6 98.6 120.9 96 128 96.1C138.1 96.2 147.6 101 153.7 109.1C157.7 114.5 160 121 160.1 127.8C160.1 127.6 184.6 48.2 80.1 48.2C36.2 48.2 0.0999942 89.9 0.0999942 126.4C-0.100006 145.7 4.09999 164.9 12.2 182.4C39.8 241.2 107 270 168.6 249.5C147.5 256.1 124.5 253.2 105.7 241.4Z"
+                    fill="url(#paint2_linear_1_2)" />
+                <path opacity="0.41"
+                    d="M105.7 241.4C96.8 235.9 89.1 228.6 83 220.1C56.7 184.1 64.6 133.6 100.6 107.3C104.4 104.6 108.3 102.1 112.5 100.1C115.6 98.6 120.9 96 128 96.1C138.1 96.2 147.6 101 153.7 109.1C157.7 114.5 160 121 160.1 127.8C160.1 127.6 184.6 48.2 80.1 48.2C36.2 48.2 0.0999942 89.9 0.0999942 126.4C-0.100006 145.7 4.09999 164.9 12.2 182.4C39.8 241.2 107 270 168.6 249.5C147.5 256.1 124.5 253.2 105.7 241.4Z"
+                    fill="url(#paint3_radial_1_2)" />
+                <path
+                    d="M152.3 148.9C151.5 149.9 149 151.4 149 154.6C149 157.2 150.7 159.7 153.7 161.8C168.1 171.8 195.2 170.5 195.3 170.5C206 170.5 216.4 167.6 225.6 162.2C244.4 151.2 256 131.1 256 109.3C256.3 86.9 248 72 244.7 65.4C223.5 23.9 177.7 0 128 0C58 0 1 56.2 0 126.2C0.5 89.7 36.8 60.2 80 60.2C83.5 60.2 103.5 60.5 122 70.3C138.3 78.9 146.9 89.2 152.8 99.5C159 110.2 160.1 123.6 160.1 129C160.1 134.3 157.4 142.3 152.3 148.9Z"
+                    fill="url(#paint4_radial_1_2)" />
+                <path
+                    d="M152.3 148.9C151.5 149.9 149 151.4 149 154.6C149 157.2 150.7 159.7 153.7 161.8C168.1 171.8 195.2 170.5 195.3 170.5C206 170.5 216.4 167.6 225.6 162.2C244.4 151.2 256 131.1 256 109.3C256.3 86.9 248 72 244.7 65.4C223.5 23.9 177.7 0 128 0C58 0 1 56.2 0 126.2C0.5 89.7 36.8 60.2 80 60.2C83.5 60.2 103.5 60.5 122 70.3C138.3 78.9 146.9 89.2 152.8 99.5C159 110.2 160.1 123.6 160.1 129C160.1 134.3 157.4 142.3 152.3 148.9Z"
+                    fill="url(#paint5_radial_1_2)" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_2" x1="58.7043" y1="177.02" x2="236.987" y2="177.02"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0C59A4" />
+                    <stop offset="1" stop-color="#114A8B" />
+                </linearGradient>
+                <radialGradient id="paint1_radial_1_2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(157.192 178.436) scale(95.3705 90.5919)">
+                    <stop offset="0.72" stop-opacity="0" />
+                    <stop offset="0.95" stop-opacity="0.53" />
+                    <stop offset="1" />
+                </radialGradient>
+                <linearGradient id="paint2_linear_1_2" x1="152.771" y1="99.7463" x2="41.3976" y2="221.059"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#1B9DE2" />
+                    <stop offset="0.16" stop-color="#1595DF" />
+                    <stop offset="0.67" stop-color="#0680D7" />
+                    <stop offset="1" stop-color="#0078D4" />
+                </linearGradient>
+                <radialGradient id="paint3_radial_1_2" cx="0" cy="0" r="1"
+                    gradientTransform="matrix(21.486 -141.779 114.592 17.1888 70.6081 199.009)"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.76" stop-opacity="0" />
+                    <stop offset="0.95" stop-opacity="0.5" />
+                    <stop offset="1" />
+                </radialGradient>
+                <radialGradient id="paint4_radial_1_2" cx="0" cy="0" r="1"
+                    gradientTransform="matrix(-8.09669 202.389 -431.155 -16.1912 25.8525 47.3924)"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#35C1F1" />
+                    <stop offset="0.11" stop-color="#34C1ED" />
+                    <stop offset="0.23" stop-color="#2FC2DF" />
+                    <stop offset="0.31" stop-color="#2BC3D2" />
+                    <stop offset="0.67" stop-color="#36C752" />
+                </radialGradient>
+                <radialGradient id="paint5_radial_1_2" cx="0" cy="0" r="1"
+                    gradientTransform="matrix(27.2552 93.4269 -75.9252 22.3882 240.06 77.4056)"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#66EB6E" />
+                    <stop offset="1" stop-color="#66EB6E" stop-opacity="0" />
+                </radialGradient>
+                <clipPath id="clip0_1_2">
+                    <rect width="256" height="256" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Google Chrome -->
+        <svg id="icon-chrome" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_11)">
+                <path
+                    d="M24 35.9947C30.6274 35.9947 36 30.6221 36 23.9947C36 17.3673 30.6274 11.9947 24 11.9947C17.3726 11.9947 12 17.3673 12 23.9947C12 30.6221 17.3726 35.9947 24 35.9947Z"
+                    fill="white" />
+                <path
+                    d="M24 12H44.7812C42.6754 8.3514 39.6461 5.32151 35.9979 3.21502C32.3496 1.10852 28.2111 -0.000324388 23.9984 -3.04592e-05C19.7857 0.00026347 15.6473 1.10969 11.9994 3.21669C8.35149 5.32369 5.3226 8.354 3.2173 12.0029L13.6079 30L13.6172 29.9976C12.5602 28.1749 12.0024 26.1057 12 23.9987C11.9977 21.8916 12.5508 19.8212 13.6037 17.9961C14.6566 16.171 16.1721 14.6557 17.9973 13.603C19.8225 12.5503 21.893 11.9974 24 12Z"
+                    fill="url(#paint0_linear_1_11)" />
+                <path
+                    d="M24 33.5C29.2467 33.5 33.5 29.2467 33.5 24C33.5 18.7533 29.2467 14.5 24 14.5C18.7533 14.5 14.5 18.7533 14.5 24C14.5 29.2467 18.7533 33.5 24 33.5Z"
+                    fill="#1A73E8" />
+                <path
+                    d="M34.3913 30.0029L24.0007 48C28.2134 48.0006 32.352 46.892 36.0003 44.7858C39.6487 42.6796 42.6782 39.6499 44.7843 36.0015C46.8904 32.353 47.9987 28.2144 47.998 24.0017C47.9972 19.789 46.8874 15.6508 44.78 12.0031H23.9989L23.9964 12.0124C26.1034 12.0083 28.1743 12.5598 30.0003 13.6113C31.8262 14.6627 33.3427 16.177 34.3968 18.0014C35.4509 19.8258 36.0055 21.8959 36.0045 24.0029C36.0035 26.1099 35.4471 28.1795 34.3913 30.0029Z"
+                    fill="url(#paint1_linear_1_11)" />
+                <path
+                    d="M13.6086 30.0031L3.218 12.006C1.11112 15.654 0.00183739 19.7924 0.00168039 24.0051C0.0015234 28.2178 1.1105 32.3563 3.21711 36.0045C5.32371 39.6526 8.35368 42.6818 12.0024 44.7875C15.651 46.8933 19.7898 48.0012 24.0025 48L34.3931 30.0029L34.3864 29.9961C33.3364 31.8229 31.8233 33.3405 29.9997 34.3961C28.1762 35.4517 26.1066 36.0078 23.9995 36.0085C21.8925 36.0093 19.8225 35.4545 17.9982 34.4001C16.1739 33.3458 14.6599 31.8292 13.6086 30.0031Z"
+                    fill="url(#paint2_linear_1_11)" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_11" x1="3.2173" y1="15" x2="44.7812" y2="15"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#D93025" />
+                    <stop offset="1" stop-color="#EA4335" />
+                </linearGradient>
+                <linearGradient id="paint1_linear_1_11" x1="20.7219" y1="47.6791" x2="41.5039" y2="11.6837"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FCC934" />
+                    <stop offset="1" stop-color="#FBBC04" />
+                </linearGradient>
+                <linearGradient id="paint2_linear_1_11" x1="26.5981" y1="46.5015" x2="5.8161" y2="10.506"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#1E8E3E" />
+                    <stop offset="1" stop-color="#34A853" />
+                </linearGradient>
+                <clipPath id="clip0_1_11">
+                    <rect width="48" height="48" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- UnGoogled Chromium -->
+        <svg id="icon-ungoogled-chromium" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M93.9994 14.9021L33.9941 117.096C47.7761 124.92 64.1542 127.039 79.5258 122.99C94.8973 118.94 108.003 109.051 115.961 95.5003C123.918 81.9487 126.074 65.844 121.956 50.729C117.837 35.614 107.781 22.7267 93.9994 14.9021Z"
+                fill="url(#paint0_linear_1_19)" />
+            <path
+                d="M93.9994 14.9021C80.2178 7.07994 63.8408 4.96077 48.4703 9.01066C33.0999 13.0605 19.9948 22.9478 12.0375 36.4978C4.08177 50.049 1.92604 66.1526 6.04446 81.2665C10.1629 96.3805 20.2182 109.267 33.9986 117.092L34.0077 117.101L94.0085 14.9066L93.9994 14.9021Z"
+                fill="url(#paint1_linear_1_19)" />
+            <path
+                d="M36.5748 118.492C34.8659 117.628 33.2008 116.683 31.5857 115.66V111.66L91.4277 13.5061C93.1367 14.3696 94.8017 15.3148 96.4168 16.3382L36.5748 114.492V118.492Z"
+                fill="white" />
+            <path
+                d="M33.9941 65.9968C33.9941 73.8216 37.1551 81.3259 42.7817 86.8589C48.4083 92.3919 56.0395 95.5003 63.9967 95.5003C71.9539 95.5003 79.5852 92.3919 85.2118 86.8589C90.8384 81.3259 93.9994 73.8216 93.9994 65.9968C93.9994 58.172 90.8384 50.6677 85.2118 45.1347C79.5852 39.6017 71.9539 36.4933 63.9967 36.4933C56.0395 36.4933 48.4083 39.6017 42.7817 45.1347C37.1551 50.6677 33.9941 58.172 33.9941 65.9968Z"
+                fill="white" />
+            <path
+                d="M39.6227 65.9968C39.6227 72.3548 42.1912 78.4525 46.763 82.9483C51.3349 87.4441 57.5357 89.9698 64.0013 89.9698C70.4669 89.9698 76.6677 87.4441 81.2395 82.9483C85.8114 78.4525 88.3798 72.3548 88.3798 65.9968C88.3798 59.6388 85.8114 53.5412 81.2395 49.0454C76.6677 44.5496 70.4669 42.0239 64.0013 42.0239C57.5357 42.0239 51.3349 44.5496 46.763 49.0454C42.1912 53.5412 39.6227 59.6388 39.6227 65.9968Z"
+                fill="url(#paint2_linear_1_19)" />
+            <path opacity="0.5"
+                d="M124 66C124 81.6478 117.679 96.6547 106.426 107.719C95.1742 118.784 79.913 125 64 125C48.087 125 32.8258 118.784 21.5736 107.719C10.3214 96.6547 4 81.6478 4 66C4 58.252 5.55195 50.5799 8.56723 43.4217C11.5825 36.2635 16.0021 29.7594 21.5736 24.2807C27.1451 18.802 33.7595 14.4561 41.039 11.4911C48.3185 8.52608 56.1207 7 64 7C71.8793 7 79.6815 8.52608 86.961 11.4911C94.2405 14.4561 100.855 18.802 106.426 24.2807C111.998 29.7594 116.417 36.2635 119.433 43.4217C122.448 50.5799 124 58.252 124 66Z"
+                fill="url(#paint3_linear_1_19)" />
+            <path
+                d="M93.9994 10.9021L33.9941 113.096C47.7761 120.92 64.1542 123.039 79.5258 118.99C94.8973 114.94 108.003 105.051 115.961 91.5003C123.918 77.9487 126.074 61.844 121.956 46.729C117.837 31.614 107.781 18.7267 93.9994 10.9021Z"
+                fill="url(#paint4_linear_1_19)" />
+            <path
+                d="M93.9994 10.9021C80.2178 3.07994 63.8408 0.960773 48.4703 5.01066C33.0999 9.06055 19.9948 18.9478 12.0375 32.4978C4.08177 46.049 1.92604 62.1526 6.04446 77.2665C10.1629 92.3805 20.2182 105.267 33.9986 113.092L34.0077 113.101L94.0085 10.9066L93.9994 10.9021Z"
+                fill="url(#paint5_linear_1_19)" />
+            <path
+                d="M36.5748 114.492C34.8659 113.628 33.2008 112.683 31.5857 111.66L91.4277 9.50607C93.1367 10.3696 94.8017 11.3148 96.4168 12.3382L36.5748 114.492Z"
+                fill="white" />
+            <path
+                d="M33.9941 61.9968C33.9941 69.8216 37.1551 77.3259 42.7817 82.8589C48.4083 88.3919 56.0395 91.5003 63.9967 91.5003C71.9539 91.5003 79.5852 88.3919 85.2118 82.8589C90.8384 77.3259 93.9994 69.8216 93.9994 61.9968C93.9994 54.172 90.8384 46.6677 85.2118 41.1347C79.5852 35.6017 71.9539 32.4933 63.9967 32.4933C56.0395 32.4933 48.4083 35.6017 42.7817 41.1347C37.1551 46.6677 33.9941 54.172 33.9941 61.9968Z"
+                fill="white" />
+            <path
+                d="M39.6227 61.9968C39.6227 68.3549 42.1912 74.4525 46.763 78.9483C51.3349 83.4441 57.5357 85.9698 64.0013 85.9698C70.4669 85.9698 76.6677 83.4441 81.2395 78.9483C85.8114 74.4525 88.3798 68.3549 88.3798 61.9968C88.3798 55.6388 85.8114 49.5412 81.2395 45.0454C76.6677 40.5496 70.4669 38.0239 64.0013 38.0239C57.5357 38.0239 51.3349 40.5496 46.763 45.0454C42.1912 49.5412 39.6227 55.6388 39.6227 61.9968Z"
+                fill="url(#paint6_linear_1_19)" />
+            <defs>
+                <linearGradient id="paint0_linear_1_19" x1="36.5743" y1="118.494" x2="94.9143" y2="15.4993"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF0000" />
+                    <stop offset="1" stop-color="#FF6666" />
+                </linearGradient>
+                <linearGradient id="paint1_linear_1_19" x1="91.4192" y1="13.5184" x2="33.0791" y2="116.509"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#800000" />
+                    <stop offset="1" stop-color="#330000" />
+                </linearGradient>
+                <linearGradient id="paint2_linear_1_19" x1="39.6202" y1="89.9678" x2="87.5554" y2="41.2216"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.5" stop-color="#BF0000" />
+                    <stop offset="1" stop-color="#FF0000" />
+                </linearGradient>
+                <linearGradient id="paint3_linear_1_19" x1="4" y1="66" x2="124" y2="66" gradientUnits="userSpaceOnUse">
+                    <stop />
+                    <stop offset="0.414" stop-color="white" />
+                    <stop offset="0.813" />
+                    <stop offset="1" stop-color="#CDCDCD" />
+                </linearGradient>
+                <linearGradient id="paint4_linear_1_19" x1="36.5743" y1="114.494" x2="94.9143" y2="11.4993"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF0000" />
+                    <stop offset="1" stop-color="#FF6666" />
+                </linearGradient>
+                <linearGradient id="paint5_linear_1_19" x1="91.4192" y1="9.5184" x2="33.0791" y2="112.509"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#800000" />
+                    <stop offset="1" stop-color="#330000" />
+                </linearGradient>
+                <linearGradient id="paint6_linear_1_19" x1="39.6202" y1="85.9678" x2="87.5554" y2="37.2216"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.5" stop-color="#BF0000" />
+                    <stop offset="1" stop-color="#FF0000" />
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <!-- Yandex Browser -->
+        <svg id="icon-yandex" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_32)">
+                <path
+                    d="M64 32C64 14.3269 49.6731 0 32 0C14.3269 0 0 14.3269 0 32C0 49.6731 14.3269 64 32 64C49.6731 64 64 49.6731 64 32Z"
+                    fill="white" />
+                <path
+                    d="M63.5 32C63.5 14.603 49.397 0.5 32 0.5C14.603 0.5 0.5 14.603 0.5 32C0.5 49.397 14.603 63.5 32 63.5C49.397 63.5 63.5 49.397 63.5 32Z"
+                    stroke="black" stroke-opacity="0.1" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M52.8937 19.4244C52.8001 19.1802 52.6373 18.8832 52.4257 18.5616C52.0024 17.9146 51.3635 17.121 50.6554 16.3721V16.3681C49.8984 15.607 49.1252 14.9477 48.4985 14.5123C48.1851 14.2966 47.9002 14.1257 47.6642 14.0321C47.5462 13.9832 47.4281 13.9507 47.3142 13.9425C47.2043 13.9344 47.0659 13.9547 46.9601 14.0605L32.2849 28.3534C32.1221 28.5121 31.8576 28.5121 31.6948 28.3534L17.0195 14.0605C16.9137 13.9588 16.7753 13.9385 16.6655 13.9425C16.5556 13.9507 16.4335 13.9832 16.3155 14.0321C16.0794 14.1257 15.7905 14.2966 15.4812 14.5123C14.8545 14.9477 14.0812 15.6111 13.3243 16.3681V16.3721C12.6161 17.121 11.9772 17.9146 11.554 18.5616C11.3423 18.8832 11.1755 19.1802 11.0859 19.4244C11.0412 19.5465 11.0086 19.6686 11.0005 19.7785C10.9964 19.8884 11.0168 20.0308 11.1266 20.1366L27.5234 36.094C27.6699 36.2364 27.7513 36.4317 27.7513 36.6352L27.735 56.1536C27.735 56.3001 27.8204 56.41 27.8937 56.4791C27.971 56.5524 28.0728 56.6134 28.1867 56.6663C28.4146 56.7762 28.728 56.878 29.0983 56.9634C29.8471 57.1344 30.8686 57.2565 32 57.2565C33.1314 57.2565 34.1529 57.1344 34.9017 56.9634C35.272 56.878 35.5854 56.7762 35.8133 56.6663C35.9272 56.6134 36.029 56.5483 36.1063 56.4791C36.1796 56.41 36.265 56.3001 36.265 56.1536L36.2487 36.6352C36.2487 36.4317 36.3301 36.2364 36.4766 36.094L52.8734 20.1366C52.9832 20.0308 53.0036 19.8884 52.9995 19.7785C52.9954 19.6645 52.9588 19.5424 52.9141 19.4244H52.8937Z"
+                    fill="url(#paint0_linear_1_32)" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_32" x1="11" y1="36.4172" x2="52.6048" y2="32.821"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.3" stop-color="#FF6A16" />
+                    <stop offset="0.542948" stop-color="#FF3227" />
+                    <stop offset="0.89" stop-color="#FF66DD" />
+                </linearGradient>
+                <clipPath id="clip0_1_32">
+                    <rect width="64" height="64" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Mozilla Firefox -->
+        <svg id="icon-firefox" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M28.9905 10.7265C28.3816 9.2574 27.1473 7.67139 26.1784 7.17039C26.967 8.72015 27.4232 10.2746 27.5976 11.4344C27.5976 11.4344 27.5976 11.4426 27.6005 11.4578C26.0156 7.49777 23.3277 5.90065 21.1327 2.42407C21.0213 2.24869 20.9105 2.07331 20.802 1.88566C20.7407 1.77985 20.6911 1.68397 20.648 1.59336C20.557 1.41757 20.4867 1.23179 20.4386 1.03975C20.439 1.03063 20.4359 1.02169 20.4301 1.01467C20.4243 1.00765 20.4161 1.00305 20.4071 1.00175C20.3985 0.999416 20.3894 0.999416 20.3808 1.00175C20.3785 1.00281 20.3763 1.00419 20.3744 1.00584C20.3709 1.00584 20.3674 1.00994 20.3639 1.0111L20.3697 1.0035C16.8483 3.07063 15.6536 6.89446 15.544 8.80784C14.1368 8.90428 12.7913 9.42358 11.683 10.298C11.5672 10.1998 11.4461 10.1081 11.3202 10.0232C11.0008 8.9027 10.9873 7.71683 11.2811 6.58931C9.84091 7.24697 8.72095 8.28463 7.90664 9.20303H7.90023C7.34433 8.49742 7.38341 6.17015 7.41491 5.68435C7.40849 5.65395 7.00076 5.89656 6.94826 5.93339C6.45773 6.2841 5.9992 6.67771 5.57805 7.1096C5.0988 7.59655 4.66096 8.12276 4.26909 8.68274C3.36752 9.96323 2.72814 11.4101 2.3879 12.9398C2.38149 12.9702 2.37565 13.0017 2.36924 13.0327C2.34299 13.1561 2.24791 13.7751 2.23099 13.9096V13.9406C2.10704 14.5803 2.02984 15.2282 2 15.8791V15.951C2 23.7097 8.27646 30 16.0182 30C22.9521 30 28.7088 24.9549 29.8364 18.328C29.8597 18.1485 29.8789 17.9673 29.8999 17.786C30.1788 15.3763 29.869 12.8439 28.9905 10.7265ZM12.8327 21.7239C12.8981 21.7549 12.9599 21.7894 13.027 21.8197L13.0363 21.8256C12.9692 21.7929 12.9004 21.759 12.8327 21.7239ZM27.6017 11.4642V11.4508V11.466V11.4642Z"
+                fill="url(#paint0_linear_1_37)" />
+            <path
+                d="M28.9907 10.7265C28.3818 9.25741 27.1475 7.67141 26.1786 7.17041C26.9672 8.72017 27.4234 10.2746 27.5978 11.4344V11.4631C28.9208 15.0572 28.1998 18.7121 27.1615 20.9452C25.555 24.4002 21.6661 27.9416 15.578 27.7692C9.00581 27.5821 3.21175 22.6885 2.1297 16.2842C1.93254 15.2735 2.1297 14.7608 2.22886 13.9406C2.10812 14.5725 2.06203 14.7555 2.00195 15.8791V15.951C2.00195 23.7098 8.27842 30 16.0202 30C22.954 30 28.7108 24.9549 29.8383 18.328C29.8616 18.1485 29.8809 17.9673 29.9019 17.7861C30.179 15.3764 29.8692 12.8439 28.9907 10.7265Z"
+                fill="url(#paint1_radial_1_37)" />
+            <path
+                d="M28.9907 10.7265C28.3818 9.25741 27.1475 7.67141 26.1786 7.17041C26.9672 8.72017 27.4234 10.2746 27.5978 11.4344V11.4631C28.9208 15.0572 28.1998 18.7121 27.1615 20.9452C25.555 24.4002 21.6661 27.9416 15.578 27.7692C9.00581 27.5821 3.21175 22.6885 2.1297 16.2842C1.93254 15.2735 2.1297 14.7608 2.22886 13.9406C2.10812 14.5725 2.06203 14.7555 2.00195 15.8791V15.951C2.00195 23.7098 8.27842 30 16.0202 30C22.954 30 28.7108 24.9549 29.8383 18.328C29.8616 18.1485 29.8809 17.9673 29.9019 17.7861C30.179 15.3764 29.8692 12.8439 28.9907 10.7265Z"
+                fill="url(#paint2_radial_1_37)" />
+            <path
+                d="M22.1776 12.3773C22.2085 12.3989 22.2359 12.4205 22.2651 12.4422C21.9133 11.8161 21.4749 11.243 20.9631 10.7398C16.6058 6.37292 19.821 1.27058 20.3629 1.01102L20.3687 1.00342C16.8473 3.07054 15.6526 6.89438 15.543 8.80776C15.7063 8.79665 15.869 8.78262 16.0353 8.78262C18.6631 8.78262 20.952 10.2312 22.1776 12.3773Z"
+                fill="url(#paint3_radial_1_37)" />
+            <path
+                d="M16.0446 13.2499C16.0219 13.6006 14.7899 14.8049 14.3589 14.8049C10.3725 14.8049 9.72559 17.2216 9.72559 17.2216C9.90058 19.2572 11.3157 20.9332 13.0277 21.82C13.1059 21.8604 13.1846 21.8966 13.2611 21.9329C13.3981 21.9913 13.5358 22.0498 13.6729 22.1018C14.26 22.3094 14.8748 22.4276 15.4969 22.4526C22.4838 22.7811 23.8383 14.08 18.7955 11.5534C20.0864 11.3283 21.4269 11.8492 22.1753 12.3759C20.9503 10.2299 18.6608 8.78125 16.033 8.78125C15.8667 8.78125 15.704 8.79528 15.5406 8.80639C14.1345 8.90403 12.7903 9.4239 11.6832 10.2983C11.8973 10.4801 12.1388 10.7221 12.6468 11.2237C13.6 12.1661 16.0394 13.1359 16.0446 13.2499Z"
+                fill="url(#paint4_radial_1_37)" />
+            <path
+                d="M16.0446 13.2499C16.0219 13.6006 14.7899 14.8049 14.3589 14.8049C10.3725 14.8049 9.72559 17.2216 9.72559 17.2216C9.90058 19.2572 11.3157 20.9332 13.0277 21.82C13.1059 21.8604 13.1846 21.8966 13.2611 21.9329C13.3981 21.9913 13.5358 22.0498 13.6729 22.1018C14.26 22.3094 14.8748 22.4276 15.4969 22.4526C22.4838 22.7811 23.8383 14.08 18.7955 11.5534C20.0864 11.3283 21.4269 11.8492 22.1753 12.3759C20.9503 10.2299 18.6608 8.78125 16.033 8.78125C15.8667 8.78125 15.704 8.79528 15.5406 8.80639C14.1345 8.90403 12.7903 9.4239 11.6832 10.2983C11.8973 10.4801 12.1388 10.7221 12.6468 11.2237C13.6 12.1661 16.0394 13.1359 16.0446 13.2499Z"
+                fill="url(#paint5_radial_1_37)" />
+            <path
+                d="M11.0311 9.83092C11.1448 9.90458 11.2382 9.96656 11.3227 10.0233C11.0034 8.90275 10.9899 7.71688 11.2837 6.58936C9.84345 7.24702 8.72349 8.28468 7.90918 9.20308C7.97509 9.20132 10.0085 9.16448 11.0311 9.83092Z"
+                fill="url(#paint6_radial_1_37)" />
+            <path
+                d="M2.1297 16.284C3.21175 22.6883 9.00581 27.5819 15.5827 27.769C21.6707 27.9414 25.5574 24.4 27.1661 20.945C28.2044 18.7113 28.9254 15.057 27.6025 11.4629V11.436C27.6025 11.4395 27.6025 11.4442 27.6054 11.4594C28.1024 14.7138 26.451 17.8665 23.8692 19.9986C23.8666 20.0045 23.8641 20.0106 23.8617 20.0167C18.8306 24.1223 14.0165 22.4936 13.0418 21.8289C12.9741 21.7962 12.9059 21.7623 12.8382 21.7272C9.9047 20.3242 8.69316 17.6438 8.95273 15.3469C6.47656 15.3469 5.63192 13.2529 5.63192 13.2529C5.63192 13.2529 7.85552 11.664 10.7861 13.046C13.5003 14.3262 16.0493 13.2529 16.0493 13.2529C16.0441 13.1389 13.6047 12.1662 12.6533 11.2267C12.1452 10.7251 11.9037 10.4831 11.6896 10.3013C11.5738 10.2031 11.4527 10.1114 11.3268 10.0265C11.2434 9.96809 11.1518 9.90963 11.0352 9.83421C10.0126 9.16778 7.97918 9.20461 7.9121 9.20636H7.90568C7.34978 8.50076 7.38886 6.17348 7.42036 5.68769C7.41395 5.65729 7.00621 5.89989 6.95371 5.93672C6.46318 6.28743 6.00465 6.68104 5.58351 7.11293C5.10426 7.59988 4.66642 8.12609 4.27455 8.68607C3.37298 9.96657 2.7336 11.4134 2.39336 12.9431C2.38228 12.97 1.88354 15.1523 2.1297 16.284Z"
+                fill="url(#paint7_radial_1_37)" />
+            <path
+                d="M20.9634 10.7399C21.4752 11.2431 21.9135 11.8162 22.2653 12.4423C22.3383 12.4971 22.4083 12.5557 22.4753 12.6176C25.6532 15.55 23.9908 19.7012 23.8642 19.9993C26.446 17.8673 28.0973 14.7146 27.6003 11.4601C26.0155 7.49777 23.3276 5.90065 21.1325 2.42407C21.0211 2.24869 20.9103 2.07331 20.8018 1.88566C20.7406 1.77985 20.691 1.68397 20.6478 1.59336C20.5569 1.41757 20.4866 1.23179 20.4384 1.03975C20.4388 1.03063 20.4358 1.02169 20.43 1.01467C20.4241 1.00765 20.4159 1.00305 20.4069 1.00175C20.3983 0.999416 20.3893 0.999416 20.3807 1.00175C20.3783 1.00281 20.3762 1.00419 20.3742 1.00584C20.3707 1.00584 20.3672 1.00994 20.3637 1.0111C19.8213 1.27066 16.606 6.37301 20.9634 10.7399Z"
+                fill="url(#paint8_radial_1_37)" />
+            <path
+                d="M22.4743 12.6146C22.4073 12.5526 22.3372 12.4941 22.2643 12.4392C22.2357 12.4176 22.206 12.396 22.1768 12.3743C21.4284 11.8482 20.088 11.3267 18.7971 11.5518C23.8393 14.0784 22.4854 22.7795 15.4985 22.451C14.8764 22.426 14.2616 22.3078 13.6744 22.1002C13.5374 22.0488 13.3997 21.9921 13.2626 21.9313C13.1833 21.895 13.1045 21.8588 13.0293 21.8185L13.0386 21.8243C14.0133 22.4908 18.8274 24.1194 23.8585 20.0121C23.8585 20.0121 23.8614 20.0045 23.8661 19.9939C23.9909 19.7011 25.6534 15.5499 22.4743 12.6146Z"
+                fill="url(#paint9_radial_1_37)" />
+            <path
+                d="M9.72532 17.2215C9.72532 17.2215 10.3722 14.8048 14.3586 14.8048C14.7897 14.8048 16.0216 13.5994 16.0444 13.2498C16.0671 12.9002 13.4953 14.3231 10.7811 13.0428C7.85055 11.6608 5.62695 13.2498 5.62695 13.2498C5.62695 13.2498 6.47159 15.3438 8.94776 15.3438C8.68819 17.6407 9.89973 20.3187 12.8332 21.7241C12.8986 21.755 12.9604 21.7895 13.0275 21.8199C11.3154 20.9349 9.90207 19.2571 9.72532 17.2215Z"
+                fill="url(#paint10_radial_1_37)" />
+            <path
+                d="M28.9905 10.7265C28.3816 9.2574 27.1473 7.67139 26.1784 7.17039C26.967 8.72015 27.4232 10.2746 27.5976 11.4344C27.5976 11.4344 27.5976 11.4426 27.6005 11.4578C26.0156 7.49777 23.3277 5.90065 21.1327 2.42407C21.0213 2.24869 20.9105 2.07331 20.802 1.88566C20.7407 1.77985 20.6911 1.68397 20.648 1.59336C20.557 1.41757 20.4867 1.23179 20.4386 1.03975C20.439 1.03063 20.4359 1.02169 20.4301 1.01467C20.4243 1.00765 20.4161 1.00305 20.4071 1.00175C20.3985 0.999416 20.3894 0.999416 20.3808 1.00175C20.3785 1.00281 20.3763 1.00419 20.3744 1.00584C20.3709 1.00584 20.3674 1.00994 20.3639 1.0111L20.3697 1.0035C16.8483 3.07063 15.6536 6.89446 15.544 8.80784C15.7073 8.79673 15.8701 8.78271 16.0363 8.78271C18.6641 8.78271 20.9531 10.2313 22.1786 12.3774C21.4302 11.8512 20.0898 11.3298 18.7989 11.5549C23.841 14.0815 22.4872 22.7826 15.5002 22.454C14.8782 22.429 14.2633 22.3108 13.6762 22.1033C13.5391 22.0518 13.4015 21.9951 13.2644 21.9343C13.1851 21.8981 13.1063 21.8618 13.0311 21.8215L13.0404 21.8273C12.9727 21.7946 12.9045 21.7607 12.8368 21.7256C12.9021 21.7566 12.964 21.7911 13.0311 21.8215C11.3155 20.9347 9.90216 19.2569 9.72542 17.2213C9.72542 17.2213 10.3723 14.8046 14.3587 14.8046C14.7898 14.8046 16.0217 13.5992 16.0445 13.2496C16.0392 13.1356 13.5998 12.1628 12.6484 11.2234C12.1403 10.7218 11.8988 10.4798 11.6848 10.298C11.5689 10.1998 11.4478 10.1081 11.3219 10.0232C11.0026 8.9027 10.9891 7.71683 11.2829 6.58931C9.84266 7.24697 8.7227 8.28463 7.90839 9.20303H7.90198C7.34608 8.49742 7.38516 6.17015 7.41666 5.68435C7.41024 5.65395 7.00251 5.89656 6.95001 5.93339C6.45948 6.2841 6.00095 6.67771 5.5798 7.1096C5.10055 7.59655 4.66271 8.12276 4.27084 8.68274C3.36927 9.96323 2.72989 11.4101 2.38965 12.9398C2.38324 12.9702 2.3774 13.0017 2.37099 13.0327C2.34474 13.1561 2.22574 13.7839 2.20941 13.9184C2.20941 13.9289 2.20941 13.9084 2.20941 13.9184C2.10019 14.5671 2.03026 15.2219 2 15.8791V15.951C2 23.7097 8.27646 30 16.0182 30C22.9521 30 28.7088 24.9549 29.8364 18.328C29.8597 18.1485 29.8789 17.9673 29.8999 17.786C30.1788 15.3763 29.869 12.8439 28.9905 10.7265Z"
+                fill="url(#paint11_linear_1_37)" />
+            <defs>
+                <linearGradient id="paint0_linear_1_37" x1="27.135" y1="5.49261" x2="3.81392" y2="27.9437"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.05" stop-color="#FFF44F" />
+                    <stop offset="0.11" stop-color="#FFE847" />
+                    <stop offset="0.22" stop-color="#FFC830" />
+                    <stop offset="0.37" stop-color="#FF980E" />
+                    <stop offset="0.4" stop-color="#FF8B16" />
+                    <stop offset="0.46" stop-color="#FF672A" />
+                    <stop offset="0.53" stop-color="#FF3647" />
+                    <stop offset="0.7" stop-color="#E31587" />
+                </linearGradient>
+                <radialGradient id="paint1_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(26.0596 4.21879) scale(29.2246 29.2888)">
+                    <stop offset="0.13" stop-color="#FFBD4F" />
+                    <stop offset="0.19" stop-color="#FFAC31" />
+                    <stop offset="0.25" stop-color="#FF9D17" />
+                    <stop offset="0.28" stop-color="#FF980E" />
+                    <stop offset="0.4" stop-color="#FF563B" />
+                    <stop offset="0.47" stop-color="#FF3750" />
+                    <stop offset="0.71" stop-color="#F5156C" />
+                    <stop offset="0.78" stop-color="#EB0878" />
+                    <stop offset="0.86" stop-color="#E50080" />
+                </radialGradient>
+                <radialGradient id="paint2_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(15.3809 16.1925) scale(29.2246 29.2888)">
+                    <stop offset="0.3" stop-color="#960E18" />
+                    <stop offset="0.35" stop-color="#B11927" stop-opacity="0.74" />
+                    <stop offset="0.43" stop-color="#DB293D" stop-opacity="0.34" />
+                    <stop offset="0.5" stop-color="#F5334B" stop-opacity="0.09" />
+                    <stop offset="0.53" stop-color="#FF3750" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="paint3_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(18.904 -2.42815) scale(21.172 21.2184)">
+                    <stop offset="0.13" stop-color="#FFF44F" />
+                    <stop offset="0.25" stop-color="#FFDC3E" />
+                    <stop offset="0.51" stop-color="#FF9D12" />
+                    <stop offset="0.53" stop-color="#FF980E" />
+                </radialGradient>
+                <radialGradient id="paint4_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(12.1487 23.8433) scale(13.915 13.9455)">
+                    <stop offset="0.35" stop-color="#3A8EE6" />
+                    <stop offset="0.47" stop-color="#5C79F0" />
+                    <stop offset="0.67" stop-color="#9059FF" />
+                    <stop offset="1" stop-color="#C139E6" />
+                </radialGradient>
+                <radialGradient id="paint5_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(15.8005 12.7119) rotate(-13.9265) scale(7.37316 8.67852)">
+                    <stop offset="0.21" stop-color="#9059FF" stop-opacity="0" />
+                    <stop offset="0.28" stop-color="#8C4FF3" stop-opacity="0.06" />
+                    <stop offset="0.75" stop-color="#7716A8" stop-opacity="0.45" />
+                    <stop offset="0.97" stop-color="#6E008B" stop-opacity="0.6" />
+                </radialGradient>
+                <radialGradient id="paint6_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(15.011 3.02041) scale(10.0108 10.0328)">
+                    <stop stop-color="#FFE226" />
+                    <stop offset="0.12" stop-color="#FFDB27" />
+                    <stop offset="0.3" stop-color="#FFC82A" />
+                    <stop offset="0.5" stop-color="#FFA930" />
+                    <stop offset="0.73" stop-color="#FF7E37" />
+                    <stop offset="0.79" stop-color="#FF7139" />
+                </radialGradient>
+                <radialGradient id="paint7_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(22.8805 -3.34313) scale(42.7109 42.8046)">
+                    <stop offset="0.11" stop-color="#FFF44F" />
+                    <stop offset="0.46" stop-color="#FF980E" />
+                    <stop offset="0.62" stop-color="#FF5634" />
+                    <stop offset="0.72" stop-color="#FF3647" />
+                    <stop offset="0.9" stop-color="#E31587" />
+                </radialGradient>
+                <radialGradient id="paint8_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(18.7517 1.33374) rotate(84.2447) scale(31.1996 20.4543)">
+                    <stop stop-color="#FFF44F" />
+                    <stop offset="0.06" stop-color="#FFE847" />
+                    <stop offset="0.17" stop-color="#FFC830" />
+                    <stop offset="0.3" stop-color="#FF980E" />
+                    <stop offset="0.36" stop-color="#FF8B16" />
+                    <stop offset="0.45" stop-color="#FF672A" />
+                    <stop offset="0.57" stop-color="#FF3647" />
+                    <stop offset="0.74" stop-color="#E31587" />
+                </radialGradient>
+                <radialGradient id="paint9_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(14.7757 6.73593) scale(26.6644 26.723)">
+                    <stop offset="0.14" stop-color="#FFF44F" />
+                    <stop offset="0.48" stop-color="#FF980E" />
+                    <stop offset="0.59" stop-color="#FF5634" />
+                    <stop offset="0.66" stop-color="#FF3647" />
+                    <stop offset="0.9" stop-color="#E31587" />
+                </radialGradient>
+                <radialGradient id="paint10_radial_1_37" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(21.8145 8.30058) scale(29.1844 29.2484)">
+                    <stop offset="0.09" stop-color="#FFF44F" />
+                    <stop offset="0.23" stop-color="#FFE141" />
+                    <stop offset="0.51" stop-color="#FFAF1E" />
+                    <stop offset="0.63" stop-color="#FF980E" />
+                </radialGradient>
+                <linearGradient id="paint11_linear_1_37" x1="26.855" y1="5.37218" x2="7.01043" y2="25.1739"
+                    gradientUnits="userSpaceOnUse">
+                    <stop offset="0.17" stop-color="#FFF44F" stop-opacity="0.8" />
+                    <stop offset="0.27" stop-color="#FFF44F" stop-opacity="0.63" />
+                    <stop offset="0.49" stop-color="#FFF44F" stop-opacity="0.22" />
+                    <stop offset="0.6" stop-color="#FFF44F" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <!-- WaterFox -->
+        <svg id="icon-waterfox" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_12_2)">
+                <g opacity="0.25" filter="url(#filter0_f_12_2)">
+                    <path
+                        d="M1.48832 5.98739C2.25889 5.66324 3.36428 6.01775 3.69684 6.78471L6.67608 13.6673C7.00818 14.4332 6.45902 15.2019 5.68845 15.5261C4.91788 15.8502 3.88311 15.5214 3.54742 14.7557L0.648505 8.14206C0.312817 7.37642 0.717747 6.31154 1.48832 5.98739Z"
+                        fill="black" />
+                    <path
+                        d="M15.4454 5.98716C14.6752 5.66275 13.5693 6.01779 13.2369 6.78458L10.2571 13.6664C9.92477 14.4331 10.4613 15.31 11.2326 15.6332C12.0017 15.9577 13.0509 15.5209 13.3867 14.7553L16.2859 8.14232C16.6205 7.37667 16.2156 6.31157 15.4454 5.98716Z"
+                        fill="black" />
+                    <path
+                        d="M9.60605 7.05334C10.4545 8.15702 11.092 9.44442 11.5639 10.2566C12.0369 11.0676 12.1174 11.2389 12.477 11.9025C12.8365 12.566 13.6453 13.1105 14.4711 12.2813C14.3973 12.4707 13.7462 14.0735 13.4184 14.7359C13.2006 15.1783 13.0577 15.3303 12.6721 15.5492C11.945 15.9599 10.8368 15.7058 10.4125 14.9866L6.74875 8.77747C8.0566 7.98913 8.25056 7.82807 9.60605 7.05334Z"
+                        fill="black" />
+                    <path
+                        d="M7.38508 7.66589C8.32995 8.77864 10.5951 12.8304 10.9865 13.3556C11.3789 13.8796 12.0992 14.4422 12.8274 14.0316C13.2131 13.8138 13.4014 13.6074 13.7213 13.2331C13.988 12.9236 14.2464 12.607 14.496 12.2836C14.4211 12.4719 13.7508 14.0713 13.423 14.7348C13.2052 15.1772 13.0622 15.3292 12.6766 15.547C11.9484 15.9588 10.8402 15.7058 10.4159 14.9855L6.75214 8.77638C7.01416 8.34308 7.10717 8.19448 7.38508 7.66589Z"
+                        fill="black" />
+                    <path
+                        d="M9.86922 5.29519C8.95951 5.47668 7.83995 6.3501 7.33065 7.01253C6.48106 8.11507 5.84472 9.40363 5.37285 10.2147C4.89985 11.0268 4.81931 11.197 4.45974 11.8617C4.09903 12.5252 3.27099 13.0731 2.44522 12.2439C2.51895 12.4322 3.18932 14.0316 3.51713 14.6952C3.73605 15.1375 3.87898 15.2895 4.26464 15.5073C4.99172 15.9179 6.09994 15.665 6.52416 14.9447L10.188 8.73665C10.5229 8.1819 10.9227 7.66901 11.379 7.20877C11.996 6.58717 12.739 6.24235 12.4872 5.84081C11.9461 4.97874 10.8141 5.10121 9.90438 5.28384L9.86922 5.29519Z"
+                        fill="black" />
+                    <path
+                        d="M12.252 5.86543C12.195 5.86156 12.1378 5.86176 12.0809 5.86603C11.2646 5.92725 10.2232 6.77447 9.82014 7.24955C8.87538 8.36237 6.34573 12.7932 5.95378 13.3178C5.56153 13.8424 4.84066 14.4045 4.11319 13.9937C3.72754 13.7758 3.53937 13.5693 3.21885 13.1954C2.96135 12.895 2.67355 12.5429 2.45056 12.2503L2.44516 12.2455C2.51959 12.4346 3.19004 14.0336 3.51776 14.6975C3.73595 15.1395 3.8788 15.2917 4.26445 15.5093C4.99192 15.9204 6.10024 15.6668 6.5249 14.9472L10.1878 8.73841C10.4 8.37858 10.7829 7.78375 11.3591 7.20273C11.9179 6.63942 12.5953 6.3144 12.5332 5.95516C12.4368 5.91735 12.3693 5.87353 12.2523 5.86513L12.252 5.86543Z"
+                        fill="black" />
+                    <path
+                        d="M5.4341 7.64316C4.91686 7.456 4.49377 7.0828 4.43592 6.37953C4.37807 5.6774 4.79549 5.17378 5.2787 5.1976C5.76192 5.22142 5.92526 5.62635 5.81409 6.00294C5.70066 6.3784 5.58723 6.52132 5.51691 6.78108C5.44658 7.04083 5.44431 7.31421 5.4341 7.64316ZM6.79413 6.22528C6.35629 5.47891 6.47312 4.63271 6.72607 4.00885C6.98129 3.38498 7.59268 2.69305 8.27099 2.51156C8.9493 2.33008 9.56636 2.42763 9.84426 3.11842C10.121 3.80807 9.51985 4.66108 8.80071 4.86072C8.08156 5.06035 7.42026 5.44602 6.79413 6.22528Z"
+                        fill="black" />
+                    <path
+                        d="M11.7192 3.53361C12.1434 3.53361 12.4872 3.18984 12.4872 2.76573C12.4872 2.34161 12.1434 1.9978 11.7192 1.9978C11.2951 1.9978 10.9513 2.34161 10.9513 2.76573C10.9513 3.18984 11.2951 3.53361 11.7192 3.53361Z"
+                        fill="black" />
+                    <path
+                        d="M10.9723 5.12573C10.5993 5.12543 10.2166 5.18276 9.87568 5.25118C9.44742 5.33701 8.97264 5.58851 8.53567 5.89702C8.23436 6.27217 8.01198 6.71993 7.97866 7.23553C7.88983 8.27242 8.6101 8.49991 9.23554 7.9669C9.33127 7.88527 9.38499 7.81655 9.44171 7.75292C9.71122 7.50293 11.336 6.87479 12.3732 6.34239C12.5488 6.16292 12.6352 5.99846 12.5281 5.8274C12.1902 5.2881 11.5941 5.12633 10.9723 5.12573Z"
+                        fill="black" />
+                    <path
+                        d="M12.252 5.86543C12.195 5.86156 12.1378 5.86176 12.0809 5.86603C11.2646 5.92725 10.2232 6.77447 9.81985 7.24955C9.71391 7.3744 9.58607 7.54576 9.44531 7.74414C9.73462 8.1808 10.2496 8.24743 10.7643 7.9128C10.942 7.68772 11.1425 7.45063 11.3795 7.21114C11.9384 6.64812 12.6322 6.29819 12.5704 5.93866C12.4687 5.89828 12.3611 5.87359 12.252 5.86543Z"
+                        fill="black" />
+                </g>
+                <path
+                    d="M1.48832 5.58731C2.25889 5.26315 3.36428 5.61767 3.69684 6.38463L6.67608 13.2672C7.00818 14.0331 6.45902 14.8018 5.68845 15.126C4.91788 15.4501 3.88311 15.1213 3.54742 14.3557L0.648505 7.74197C0.312817 6.97633 0.717747 5.91146 1.48832 5.58731Z"
+                    fill="#01A2EB" />
+                <path
+                    d="M15.4454 5.58714C14.6752 5.26273 13.5693 5.61777 13.2369 6.38455L10.2571 13.2663C9.92477 14.0331 10.4613 14.9099 11.2326 15.2332C12.0017 15.5576 13.0509 15.1209 13.3867 14.3553L16.2859 7.7423C16.6205 6.97665 16.2156 5.91155 15.4454 5.58714Z"
+                    fill="#5283EE" />
+                <path
+                    d="M9.60605 6.65332C10.4545 7.75699 11.092 9.0444 11.5639 9.85655C12.0369 10.6676 12.1174 10.8389 12.477 11.5024C12.8365 12.166 13.6453 12.7105 14.4711 11.8813C14.3973 12.0707 13.7462 13.6735 13.4184 14.3359C13.2006 14.7783 13.0577 14.9303 12.6721 15.1492C11.945 15.5598 10.8368 15.3057 10.4125 14.5866L6.74875 8.37744C8.0566 7.58911 8.25056 7.42805 9.60605 6.65332Z"
+                    fill="#0CC8FD" />
+                <path
+                    d="M7.38508 7.26587C8.32995 8.37862 10.5951 12.4304 10.9865 12.9555C11.3789 13.4796 12.0992 14.0422 12.8274 13.6316C13.2131 13.4138 13.4014 13.2074 13.7213 12.833C13.988 12.5236 14.2464 12.207 14.496 11.8836C14.4211 12.0719 13.7508 13.6713 13.423 14.3348C13.2052 14.7772 13.0622 14.9292 12.6766 15.147C11.9484 15.5587 10.8402 15.3058 10.4159 14.5855L6.75214 8.37635C7.01416 7.94305 7.10717 7.79445 7.38508 7.26587Z"
+                    fill="#0BB1F9" />
+                <path
+                    d="M9.86922 4.8951C8.95951 5.07659 7.83995 5.95001 7.33065 6.61244C6.48106 7.71498 5.84472 9.00355 5.37285 9.81457C4.89985 10.6267 4.81931 10.7969 4.45974 11.4616C4.09903 12.1251 3.27099 12.673 2.44522 11.8438C2.51895 12.0321 3.18932 13.6315 3.51713 14.2951C3.73605 14.7374 3.87898 14.8894 4.26464 15.1072C4.99172 15.5178 6.09994 15.2649 6.52416 14.5446L10.188 8.33657C10.5229 7.78182 10.9227 7.26893 11.379 6.80868C11.996 6.18709 12.739 5.84227 12.4872 5.44072C11.9461 4.57866 10.8141 4.70113 9.90438 4.88375L9.86922 4.8951Z"
+                    fill="#1EE1FD" />
+                <path
+                    d="M12.252 5.4654C12.195 5.46154 12.1378 5.46174 12.0809 5.46601C11.2646 5.52723 10.2232 6.37445 9.82014 6.84953C8.87538 7.96235 6.34573 12.3932 5.95378 12.9178C5.56153 13.4424 4.84066 14.0045 4.11319 13.5937C3.72754 13.3758 3.53937 13.1693 3.21885 12.7954C2.96135 12.495 2.67355 12.1429 2.45056 11.8503L2.44516 11.8455C2.51959 12.0346 3.19004 13.6336 3.51776 14.2974C3.73595 14.7395 3.8788 14.8917 4.26445 15.1092C4.99192 15.5204 6.10024 15.2668 6.5249 14.5471L10.1878 8.33839C10.4 7.97855 10.7829 7.38373 11.3591 6.80271C11.9179 6.2394 12.5953 5.91437 12.5332 5.55514C12.4368 5.51732 12.3693 5.47351 12.2523 5.4651L12.252 5.4654Z"
+                    fill="#17C2F9" />
+                <path
+                    d="M5.4341 7.24313C4.91686 7.05597 4.49377 6.68277 4.43592 5.97951C4.37807 5.27737 4.79549 4.77375 5.2787 4.79757C5.76192 4.82139 5.92526 5.22633 5.81409 5.60292C5.70066 5.97837 5.58723 6.1213 5.51691 6.38105C5.44658 6.64081 5.44431 6.91418 5.4341 7.24313ZM6.79413 5.82526C6.35629 5.07889 6.47312 4.23269 6.72607 3.60882C6.98129 2.98496 7.59268 2.29303 8.27099 2.11154C8.9493 1.93005 9.56636 2.0276 9.84426 2.71839C10.121 3.40805 9.51985 4.26105 8.80071 4.46069C8.08156 4.66033 7.42026 5.04599 6.79413 5.82526Z"
+                    fill="#6DF0FE" />
+                <path
+                    d="M11.7192 3.13359C12.1434 3.13359 12.4872 2.78981 12.4872 2.3657C12.4872 1.94159 12.1434 1.59778 11.7192 1.59778C11.2951 1.59778 10.9513 1.94159 10.9513 2.3657C10.9513 2.78981 11.2951 3.13359 11.7192 3.13359Z"
+                    fill="#6DF0FE" />
+                <path
+                    d="M10.9723 4.72571C10.5993 4.72541 10.2166 4.78273 9.87568 4.85116C9.44742 4.93699 8.97264 5.18848 8.53567 5.497C8.23436 5.87214 8.01198 6.31991 7.97866 6.8355C7.88983 7.87239 8.6101 8.09988 9.23554 7.56688C9.33127 7.48525 9.38499 7.41652 9.44171 7.3529C9.71122 7.10291 11.336 6.47477 12.3732 5.94237C12.5488 5.7629 12.6352 5.59844 12.5281 5.42737C12.1902 4.88807 11.5941 4.72631 10.9723 4.72571Z"
+                    fill="url(#paint0_linear_12_2)" />
+                <path
+                    d="M12.252 5.4654C12.195 5.46154 12.1378 5.46174 12.0809 5.46601C11.2646 5.52723 10.2232 6.37445 9.81985 6.84953C9.71391 6.97437 9.58607 7.14574 9.44531 7.34411C9.73462 7.78078 10.2496 7.8474 10.7643 7.51278C10.942 7.28769 11.1425 7.0506 11.3795 6.81111C11.9384 6.2481 12.6322 5.89817 12.5704 5.53863C12.4687 5.49825 12.3611 5.47356 12.252 5.4654Z"
+                    fill="#B2EDFA" />
+            </g>
+            <defs>
+                <filter id="filter0_f_12_2" x="0.0849565" y="1.55316" width="16.7639" height="14.6373"
+                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                    <feGaussianBlur stdDeviation="0.222323" result="effect1_foregroundBlur_12_2" />
+                </filter>
+                <linearGradient id="paint0_linear_12_2" x1="7.97116" y1="6.2854" x2="12.5749" y2="6.2854"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#B6FDFE" />
+                    <stop offset="1" stop-color="#CAFEFE" />
+                </linearGradient>
+                <clipPath id="clip0_12_2">
+                    <rect width="16.933" height="16.933" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- LibreWolf -->
+        <svg id="icon-librewolf" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_5_220)">
+                <path
+                    d="M33.8667 67.7333C52.5707 67.7333 67.7333 52.5707 67.7333 33.8667C67.7333 15.1626 52.5707 0 33.8667 0C15.1626 0 0 15.1626 0 33.8667C0 52.5707 15.1626 67.7333 33.8667 67.7333Z"
+                    fill="#00ACFF" />
+                <path
+                    d="M30.437 60.779C25.693 60.1703 21.1551 58.2791 17.1951 55.2605C15.9035 54.2759 13.4802 51.8368 12.4223 50.4567C9.45985 46.5919 7.61778 42.2059 7.01008 37.5701C6.74992 35.5854 6.75136 31.9366 7.01298 30.1227C8.32106 21.055 14.0276 13.2773 22.2221 9.39352C26.0336 7.58705 29.5224 6.82239 33.9528 6.82239C41.1187 6.82239 47.4793 9.38988 52.6337 14.363C55.1167 16.7588 56.7818 19.0311 58.2077 21.9698C60.1363 25.9449 60.9175 29.4025 60.9175 33.965C60.9175 39.9712 59.183 45.2091 55.5805 50.0818C54.51 51.5297 52.4187 53.7293 51.031 54.8668C47.2245 57.9872 42.3724 60.0987 37.5578 60.7298C35.8943 60.9479 31.9646 60.9751 30.437 60.779ZM40.4784 55.9136C43.3768 54.9999 45.7388 53.7721 48.0191 51.9938C49.2315 51.0482 51.3273 48.9323 52.206 47.7667C54.5892 44.605 56.2109 40.6447 56.688 36.8207C56.9178 34.9789 56.7844 31.0824 56.4335 29.3911C55.5041 24.9106 53.5019 21.1261 50.3475 17.8877C48.381 15.8687 46.5906 14.5379 44.2873 13.3831C40.7923 11.6307 37.7975 10.9227 33.8638 10.9187C29.6998 10.9147 26.0485 11.8689 22.4348 13.9063C19.145 15.7611 15.7442 19.1658 13.8816 22.4693C12.5098 24.9023 11.5057 27.7896 11.114 30.428C10.8571 32.1579 10.852 35.5931 11.1039 37.2495C11.608 40.5644 12.8654 43.8406 14.6882 46.5885C15.6836 48.0891 15.6524 48.0724 16.5305 47.57C18.1012 46.6713 18.5109 46.2366 19.3666 44.5602C20.3672 42.5998 21.437 40.8867 22.4037 39.6969C23.5195 38.3234 23.6729 38.079 24.2326 36.7822C24.5143 36.1297 25.0196 35.1714 25.3556 34.6527L25.9664 33.7097L25.1762 32.933C24.1265 31.9013 23.2534 30.7314 23.0892 30.1364C22.9214 29.5289 23.1194 29.1898 23.9079 28.7344C24.7053 28.2738 25.2755 28.1415 27.4066 27.9224C28.4442 27.8158 29.5707 27.6204 29.9255 27.4856C30.2786 27.3515 31.3334 26.7774 32.2695 26.2098C34.9725 24.5712 35.2012 24.4864 36.8217 24.5215C38.1903 24.5512 38.1929 24.5506 39.0045 24.0601C40.7051 23.0321 43.1475 21.1772 46.3615 18.4728C46.9778 17.9542 47.5715 17.5471 47.6808 17.5681C48.1355 17.6557 48.9704 19.7045 49.0972 21.0437C49.1742 21.856 49.017 22.6592 48.5352 23.9164C48.4038 24.2594 48.3432 24.5868 48.4005 24.644C48.5383 24.7812 49.0112 24.1905 49.0112 23.8812C49.0112 23.4868 49.2724 23.4418 49.6276 23.7749C49.8858 24.0171 50.1084 24.0864 50.6278 24.0864C51.1948 24.0864 51.3352 24.139 51.5565 24.4343C51.9321 24.9355 52.0202 26.3012 51.7327 27.1667C51.4531 28.0086 50.6079 28.9795 49.8409 29.3401C49.1546 29.6627 47.7651 31.0193 47.1148 32.0017C46.8659 32.3777 46.3992 33.1617 46.0778 33.7437C45.7563 34.3258 45.217 35.2053 44.8794 35.6981C44.2151 36.6678 43.6463 38.0205 43.0972 39.9361C42.7747 41.0614 42.7476 41.3543 42.7343 43.8641C42.7181 46.8958 42.5614 47.6397 41.7418 48.5732C40.81 49.6344 39.8798 51.965 39.8016 53.4345C39.7523 54.362 39.6094 55.2661 39.4063 55.9357C39.3169 56.2305 39.4838 56.2271 40.4784 55.9136Z"
+                    fill="white" />
+                <path d="M34.9552 27.756L36.177 26.1913L38.143 25.9155L36.9212 27.4802L34.9552 27.756Z"
+                    fill="#00ACFF" />
+            </g>
+            <defs>
+                <clipPath id="clip0_5_220">
+                    <rect width="67.7333" height="67.7333" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Opera GX -->
+        <svg id="icon-opera-gx" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_51)">
+                <path
+                    d="M46.336 48.414C43.2703 50.4369 39.7655 51.509 36.191 51.509C30.3397 51.509 24.792 48.6464 20.97 43.6554C20.9564 43.6383 20.9434 43.6225 20.9298 43.6054C17.9984 40.1259 16.2477 35.0143 16.127 29.6124L16.1263 28.3449C16.2476 22.9111 17.9983 17.7999 20.9693 14.2709C24.7918 9.27986 30.3403 6.41726 36.1913 6.41726C39.7663 6.41726 43.2717 7.48936 46.3393 9.51356C51.8129 14.4758 54.9523 21.5576 54.9523 28.9636C54.9523 36.3702 51.8123 43.4526 46.3373 48.4146M27.6693 55.1172C13.7633 54.4612 2.8693 42.9732 2.8693 28.9632C2.8693 14.5252 14.5513 2.77816 28.9363 2.77816C28.9424 2.77816 29.0017 2.77885 29.0086 2.77885C31.2863 2.78707 33.5319 3.09486 35.6943 3.68094C29.1756 3.83723 23.0463 7.06653 18.8493 12.5483C15.5218 16.4974 13.5359 22.2328 13.4009 28.3133V29.6424C13.5358 35.6788 15.5136 41.4034 18.8288 45.3534C23.0637 50.8688 29.1868 54.0885 35.6958 54.2448C33.108 54.9468 30.362 55.2456 27.6684 55.1168M48.0844 7.39977C42.8365 2.67817 36.0654 0.0637655 28.9884 0.0369655C28.9795 0.03628 28.9188 0.0355945 28.9106 0.0355945C13.0476 0.0355945 0.141642 13.0126 0.141642 28.9626C0.141642 44.4396 12.1766 57.1316 27.5426 57.8556C27.996 57.8768 28.4521 57.8885 28.9108 57.8885C35.9926 57.8885 42.7998 55.2761 48.0758 50.5312L48.082 50.5271C54.1807 45.0419 57.6787 37.1821 57.6787 28.9621C57.6787 20.7432 54.1817 12.8838 48.0844 7.39977Z"
+                    fill="#FA1E4E" />
+                <path
+                    d="M34.182 10.741C39.3143 14.0549 42.8481 20.984 42.8481 29C42.8481 37.0159 39.3143 43.946 34.182 47.259C40.7332 46.7131 45.932 38.748 45.932 29C45.932 19.2518 40.733 11.287 34.182 10.741Z"
+                    fill="#FA1E4E" />
+            </g>
+            <defs>
+                <clipPath id="clip0_1_51">
+                    <rect width="58" height="58" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Vivaldi -->
+        <svg id="icon-vivaldi" viewBox="0 0 456 455" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_55)">
+                <path
+                    d="M228 454.3C327.7 454.3 383.1 454.3 419.4 418.2C455.6 382.1 455.6 326.9 455.6 227.5C455.6 128.1 455.6 72.9 419.4 36.8C383.1 0.8 327.7 0.8 228 0.8C128.3 0.8 72.9 0.800004 36.6 36.9C0.399996 73 0.4 128.2 0.4 227.6C0.4 327 0.399996 382.2 36.6 418.3C72.9 454.3 128.3 454.3 228 454.3Z"
+                    fill="#EF3939" />
+                <path
+                    d="M376 143.7C354.2 105.6 317.7 75.9 271.8 63.6C180.7 39.3 87.1 93.1 62.7 183.8C50.4 229.4 58 275.7 80.2 313.5C80.5 314 80.8 314.6 81.2 315.1L161.4 453.6C174.7 454 189.1 454.1 204.6 454.1H227.2C271.5 454.1 307.1 454.1 336.2 450.9C372.5 446.9 398.5 438 418.6 418C447.9 388.8 453.5 347 454.6 279.3C407.8 198.5 376.1 143.8 376 143.7Z"
+                    fill="url(#paint0_linear_1_55)" />
+                <path
+                    d="M347.8 107.6C281.3 41.2 173.4 41.2 106.8 107.6C40.3 174 40.3 281.6 106.8 347.9C173.3 414.3 281.2 414.3 347.8 347.9C414.4 281.5 414.4 173.9 347.8 107.6ZM337.6 185.7C309.5 234.4 281.4 283.1 253.3 331.9C248.1 341 240.5 346.4 230.1 347.2C218.5 348 209.3 343.1 203.4 333.1C185.6 302.6 168 271.9 150.4 241.3C139.7 222.7 128.9 204.1 118.2 185.4C107.4 166.6 119.6 143.7 141.2 142.6C152.6 142 161.4 147.3 167.2 157.2C175.1 170.7 182.9 184.4 190.8 198C196.5 207.8 202 217.7 207.8 227.3C216.2 241.4 228.6 249.3 245.1 250.3C268.4 251.7 290.1 234.8 292.9 210.1C293.1 208.3 293.2 206.4 293.3 205.5C293.2 197.5 291.7 190.7 288.5 184.4C279.8 167 289.1 147.5 308 143.3C323.4 139.9 339.4 151.2 341.4 166.8C342.4 173.5 341 179.8 337.6 185.7Z"
+                    fill="white" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_55" x1="142.697" y1="80.3908" x2="358.423" y2="456.739"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-opacity="0.2" />
+                    <stop offset="0.7908" stop-opacity="0.05" />
+                </linearGradient>
+                <clipPath id="clip0_1_55">
+                    <rect width="456" height="455" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- DuckDuckGo Private Browser -->
+        <svg id="icon-duckduckgo" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_61)">
+                <path
+                    d="M128.145 19.341C188.147 19.341 236.788 67.982 236.788 127.984C236.788 187.985 188.147 236.626 128.145 236.626C68.144 236.626 19.503 187.985 19.503 127.984C19.503 67.982 68.144 19.341 128.145 19.341Z"
+                    fill="#DE5833" />
+                <path
+                    d="M128.143 255.422C198.526 255.422 255.583 198.365 255.583 127.982C255.583 57.599 198.526 0.542 128.143 0.542C57.76 0.542 0.703 57.599 0.703 127.982C0.703 198.365 57.76 255.422 128.143 255.422ZM128.143 244.802C63.625 244.802 11.323 192.5 11.323 127.982C11.323 63.464 63.625 11.162 128.143 11.162C192.661 11.162 244.963 63.464 244.963 127.982C244.963 192.5 192.661 244.802 128.143 244.802Z"
+                    fill="#DE5833" />
+                <path
+                    d="M75.219 54.63C75.198 52.803 76.525 51.78 78.288 51.063C77.481 51.195 76.708 51.397 76.012 51.709C74.174 52.542 72.8 55.696 72.813 57.189C81.736 56.287 94.931 56.911 104.58 59.791C105.292 59.691 106.004 59.591 106.727 59.508C97.103 55.235 85.661 53.585 75.219 54.63Z"
+                    fill="#D5D7D8" />
+                <path
+                    d="M77.048 43.65C77.249 43.614 77.453 43.589 77.655 43.555C75.73 43.794 74.715 44.482 73.27 44.719C74.839 44.858 80.784 47.633 84.52 49.159C85.044 48.96 85.516 48.739 85.901 48.478C83.964 48.192 79.151 43.842 77.048 43.65Z"
+                    fill="#D5D7D8" />
+                <path
+                    d="M86.326 65.256C85.791 65.462 85.283 65.677 84.843 65.908C70.298 73.571 63.873 91.47 67.702 112.918C71.197 132.436 85.522 199.123 92.081 230.489C93.996 231.162 95.934 231.787 97.896 232.354C92.055 204.114 76.112 130.114 72.392 109.331C68.621 88.188 72.29 73.017 86.326 65.256Z"
+                    fill="#D5D7D8" />
+                <path
+                    d="M145.184 219.118C144.944 219.278 144.658 219.428 144.353 219.574C144.127 220.45 143.782 221.114 143.279 221.448C140.275 223.441 131.79 224.445 127.31 223.441C126.539 223.27 125.955 222.987 125.499 222.598C117.85 226.845 106.85 232.499 104.616 231.225C101.126 229.224 100.62 202.774 101.126 196.283C101.495 191.383 118.707 199.32 127.08 203.483C128.931 201.754 133.466 200.597 137.48 200.204C131.415 185.443 126.942 168.559 129.684 156.586C125.894 153.945 120.871 147.82 121.917 141.427C122.723 136.561 135.297 127.355 144.2 126.799C153.123 126.236 155.904 126.363 163.338 124.583C163.71 124.494 164.119 124.396 164.547 124.293C169.123 108.206 158.148 80.219 145.906 67.972C141.915 63.981 135.779 61.469 128.865 60.143C126.206 56.494 121.917 53.005 115.845 49.774C104.57 43.788 90.636 41.351 77.655 43.555C77.453 43.589 77.249 43.614 77.048 43.65C79.151 43.842 83.964 48.192 85.901 48.478C85.516 48.739 85.044 48.96 84.52 49.159C82.702 49.851 80.231 50.271 78.288 51.063C76.525 51.78 75.198 52.803 75.219 54.63C85.661 53.585 97.103 55.235 106.727 59.508C106.004 59.591 105.292 59.691 104.58 59.791C97.755 60.751 91.482 62.519 86.95 64.91C86.737 65.021 86.535 65.141 86.326 65.256C72.29 73.017 68.621 88.188 72.392 109.331C76.112 130.114 92.159 205.26 98 233.5C107.603 236.279 116.582 238.5 127.08 238.5C135.992 238.5 146.711 236.525 155 234.5C152.089 228.887 148.344 222.68 146.036 218.229C145.728 218.596 145.485 218.917 145.184 219.118ZM151.057 112.557C147.253 112.557 144.15 109.463 144.15 105.637C144.15 101.829 147.253 98.734 151.057 98.734C154.882 98.734 157.973 101.829 157.973 105.637C157.973 109.463 154.882 112.557 151.057 112.557ZM155.218 86.549C155.218 86.549 150.861 84.06 147.48 84.102C140.532 84.193 138.64 87.263 138.64 87.263C138.64 87.263 139.806 79.945 148.691 81.413C153.508 82.214 155.218 86.549 155.218 86.549ZM81.963 95.546C81.963 95.546 78.834 88.573 87.173 85.156C95.521 81.738 99.586 87.101 99.586 87.101C99.586 87.101 93.524 84.359 87.63 88.063C81.746 91.763 81.963 95.546 81.963 95.546ZM89.253 110.408C89.253 105.962 92.848 102.364 97.3 102.364C101.74 102.364 105.34 105.962 105.34 110.408C105.34 114.855 101.74 118.449 97.3 118.449C92.848 118.451 89.253 114.855 89.253 110.408Z"
+                    fill="white" />
+                <path
+                    d="M105.34 110.408C105.34 105.962 101.74 102.364 97.3 102.364C92.848 102.364 89.253 105.962 89.253 110.408C89.253 114.855 92.848 118.451 97.3 118.449C101.74 118.449 105.34 114.855 105.34 110.408ZM100.862 109.817C99.72 109.82 98.781 108.881 98.781 107.727C98.781 106.57 99.717 105.639 100.862 105.639C102.016 105.639 102.952 106.57 102.952 107.727C102.952 108.881 102.016 109.817 100.862 109.817Z"
+                    fill="#2D4F8E" />
+                <path
+                    d="M100.862 105.639C99.717 105.639 98.781 106.57 98.781 107.727C98.781 108.881 99.72 109.82 100.862 109.817C102.016 109.817 102.952 108.881 102.952 107.727C102.952 106.57 102.016 105.639 100.862 105.639Z"
+                    fill="white" />
+                <path
+                    d="M151.057 98.734C147.253 98.734 144.15 101.829 144.15 105.637C144.15 109.463 147.253 112.557 151.057 112.557C154.882 112.557 157.973 109.463 157.973 105.637C157.973 101.829 154.882 98.734 151.057 98.734ZM154.124 105.128C153.149 105.128 152.344 104.335 152.344 103.339C152.344 102.356 153.149 101.549 154.124 101.549C155.141 101.549 155.921 102.356 155.921 103.339C155.921 104.335 155.141 105.128 154.124 105.128Z"
+                    fill="#2D4F8E" />
+                <path
+                    d="M154.124 101.549C153.149 101.549 152.344 102.356 152.344 103.339C152.344 104.335 153.149 105.128 154.124 105.128C155.141 105.128 155.921 104.335 155.921 103.339C155.921 102.356 155.141 101.549 154.124 101.549Z"
+                    fill="white" />
+                <path
+                    d="M99.586 87.101C99.586 87.101 95.521 81.738 87.173 85.156C78.834 88.573 81.963 95.546 81.963 95.546C81.963 95.546 81.746 91.763 87.63 88.063C93.524 84.359 99.586 87.101 99.586 87.101Z"
+                    fill="url(#paint0_linear_1_61)" />
+                <path
+                    d="M148.691 81.413C139.806 79.945 138.64 87.263 138.64 87.263C138.64 87.263 140.532 84.193 147.48 84.102C150.861 84.06 155.218 86.549 155.218 86.549C155.218 86.549 153.508 82.214 148.691 81.413Z"
+                    fill="url(#paint1_linear_1_61)" />
+                <path
+                    d="M144.2 126.799C135.297 127.355 122.723 136.561 121.917 141.427C120.871 147.82 125.894 153.945 129.684 156.586C129.694 156.593 129.705 156.602 129.715 156.609C133.504 159.245 158.733 167.756 171.25 167.52C183.781 167.276 204.361 159.602 202.101 153.453C199.851 147.302 179.412 158.88 158.094 156.904C142.306 155.437 139.519 148.364 143.015 143.198C147.412 136.705 155.421 144.43 168.631 140.477C181.861 136.535 200.363 129.479 207.228 125.637C223.101 116.788 200.586 113.118 195.268 115.573C190.227 117.902 172.681 122.33 164.547 124.293C164.119 124.396 163.71 124.494 163.338 124.583C155.904 126.363 153.123 126.236 144.2 126.799Z"
+                    fill="#FDD209" />
+                <path
+                    d="M124.316 207.47C124.316 206.549 125.057 205.734 126.233 205.039C126.266 204.48 126.57 203.96 127.08 203.483C118.707 199.32 101.495 191.383 101.126 196.283C100.62 202.774 101.126 229.224 104.616 231.225C106.85 232.499 117.85 226.845 125.499 222.598C123.292 220.717 124.316 216.151 124.316 207.47Z"
+                    fill="#65BC46" />
+                <path
+                    d="M145.925 218.186C145.961 218.2 146 218.215 146.036 218.229C152.89 220.874 166.534 225.853 169.497 224.766C173.492 223.239 172.492 191.313 168.008 190.296C164.416 189.499 150.665 199.188 145.255 203.135C146.212 207.176 147.37 215.18 145.925 218.186Z"
+                    fill="#65BC46" />
+                <path
+                    d="M129.214 221.111C124.719 220.115 126.221 215.618 126.221 205.14C126.221 205.106 126.231 205.073 126.233 205.039C125.057 205.734 124.316 206.549 124.316 207.47C124.316 216.151 123.292 220.717 125.499 222.598C125.955 222.987 126.539 223.27 127.31 223.441C131.79 224.445 140.275 223.441 143.279 221.448C143.782 221.114 144.127 220.45 144.353 219.574C140.837 221.258 133.329 222.047 129.214 221.111Z"
+                    fill="#43A244" />
+                <path
+                    d="M127.08 203.483C126.57 203.96 126.266 204.48 126.233 205.039C126.231 205.073 126.221 205.106 126.221 205.14C126.221 215.618 124.719 220.115 129.214 221.111C133.329 222.047 140.837 221.258 144.353 219.574C144.658 219.428 144.944 219.278 145.184 219.118C145.485 218.917 145.728 218.596 145.925 218.186C147.37 215.18 146.212 207.176 145.255 203.135C145.044 202.246 144.844 201.546 144.683 201.136C144.27 200.114 141.089 199.851 137.48 200.204C133.466 200.597 128.931 201.754 127.08 203.483Z"
+                    fill="#65BC46" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_61" x1="94.3094" y1="95.546" x2="81.3879" y2="95.546"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#394A9F" />
+                    <stop offset="1" stop-color="#6176B9" />
+                </linearGradient>
+                <linearGradient id="paint1_linear_1_61" x1="150.411" y1="87.263" x2="138.64" y2="87.263"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#394A9F" />
+                    <stop offset="1" stop-color="#6176B9" />
+                </linearGradient>
+                <clipPath id="clip0_1_61">
+                    <rect width="256" height="256" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Zen Browser -->
+        <svg id="icon-zen" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_83)">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M32 44.308C38.797 44.308 44.308 38.798 44.308 32C44.308 25.203 38.798 19.692 32 19.692C25.203 19.692 19.692 25.202 19.692 32C19.692 38.797 25.202 44.308 32 44.308ZM41.846 32C41.846 37.438 37.438 41.846 32 41.846C26.562 41.846 22.154 37.438 22.154 32C22.154 26.562 26.562 22.154 32 22.154C37.438 22.154 41.846 26.562 41.846 32Z"
+                    fill="#F76F53" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M53.333 32C53.333 43.782 43.783 53.333 32 53.333C20.218 53.333 10.667 43.783 10.667 32C10.667 20.218 20.217 10.667 32 10.667C43.782 10.667 53.333 20.217 53.333 32ZM32 49.23C41.516 49.23 49.23 41.516 49.23 32C49.23 22.484 41.517 14.77 32 14.77C22.483 14.77 14.77 22.483 14.77 32C14.77 41.517 22.483 49.23 32 49.23Z"
+                    fill="#F76F53" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M64 32C64 49.673 49.673 64 32 64C14.327 64 0 49.673 0 32C0 14.327 14.327 0 32 0C49.673 0 64 14.327 64 32ZM32 58.256C46.501 58.256 58.256 46.501 58.256 32C58.256 17.499 46.501 5.744 32 5.744C17.499 5.744 5.744 17.499 5.744 32C5.744 46.501 17.499 58.256 32 58.256Z"
+                    fill="#F76F53" />
+            </g>
+            <defs>
+                <clipPath id="clip0_1_83">
+                    <rect width="64" height="64" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Brave -->
+        <svg id="icon-brave" viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_88)">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M53.292 15.321L54.792 11.645C54.792 11.645 52.883 9.602 50.565 7.287C48.248 4.972 43.34 6.334 43.34 6.334L37.751 0H18.12L12.531 6.334C12.531 6.334 7.623 4.972 5.306 7.287C2.988 9.602 1.08 11.645 1.08 11.645L2.58 15.321L0.67 20.768C0.67 20.768 6.284 42.004 6.942 44.598C8.237 49.704 9.123 51.678 12.804 54.266C16.484 56.853 23.164 61.346 24.254 62.028C25.345 62.708 26.709 63.868 27.936 63.868C29.163 63.868 30.526 62.708 31.616 62.028C32.707 61.347 39.386 56.853 43.068 54.266C46.748 51.679 47.635 49.704 48.93 44.598C49.587 42.004 55.2 20.768 55.2 20.768L53.292 15.321Z"
+                    fill="url(#paint0_linear_1_88)" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M34.888 11.508C35.706 11.508 41.773 10.351 41.773 10.351C41.773 10.351 48.962 19.031 48.962 20.887C48.962 22.421 48.343 23.021 47.615 23.729C47.463 23.877 47.305 24.029 47.148 24.197L41.758 29.914C41.7001 29.9748 41.6415 30.0348 41.582 30.094C41.044 30.634 40.252 31.43 40.81 32.752L40.925 33.021C41.538 34.453 42.295 36.221 41.332 38.011C40.307 39.917 38.552 41.189 37.427 40.978C36.303 40.768 33.661 39.389 32.69 38.76C31.719 38.13 28.64 35.594 28.64 34.623C28.64 33.814 30.854 32.468 31.93 31.813C32.144 31.683 32.313 31.581 32.41 31.515C32.521 31.44 32.707 31.325 32.936 31.183C33.917 30.573 35.69 29.473 35.735 28.986C35.79 28.384 35.769 28.208 34.977 26.722C34.809 26.406 34.612 26.068 34.409 25.718C33.655 24.423 32.811 22.973 32.999 21.934C33.209 20.761 35.049 20.089 36.607 19.519C36.801 19.449 36.992 19.379 37.174 19.31L38.797 18.701C40.353 18.119 42.081 17.472 42.367 17.341C42.761 17.16 42.659 16.986 41.464 16.873C41.2706 16.854 41.0772 16.834 40.884 16.813C39.404 16.656 36.675 16.367 35.349 16.736C35.088 16.809 34.796 16.888 34.489 16.971C32.999 17.374 31.172 17.868 30.996 18.153C30.966 18.203 30.936 18.246 30.907 18.286C30.739 18.524 30.63 18.68 30.816 19.692C30.871 19.994 30.985 20.587 31.126 21.321C31.536 23.469 32.179 26.819 32.26 27.571C32.271 27.677 32.284 27.778 32.296 27.876C32.399 28.716 32.467 29.275 31.491 29.498L31.236 29.556C30.134 29.808 28.519 30.179 27.936 30.179C27.352 30.179 25.736 29.809 24.634 29.556L24.38 29.498C23.404 29.275 23.473 28.716 23.576 27.876C23.588 27.778 23.6 27.676 23.611 27.571C23.692 26.818 24.336 23.459 24.748 21.312C24.888 20.582 25.001 19.992 25.056 19.692C25.241 18.68 25.132 18.524 24.964 18.286C24.9331 18.2423 24.903 18.198 24.874 18.153C24.7 17.868 22.874 17.374 21.383 16.971C21.076 16.888 20.783 16.809 20.523 16.736C19.196 16.366 16.468 16.656 14.988 16.813C14.762 16.837 14.566 16.858 14.408 16.873C13.212 16.986 13.111 17.16 13.505 17.341C13.79 17.472 15.518 18.119 17.073 18.701C17.67 18.924 18.243 19.138 18.697 19.31C18.88 19.379 19.07 19.448 19.265 19.52C20.823 20.09 22.663 20.761 22.873 21.934C23.06 22.973 22.216 24.423 21.463 25.718C21.259 26.068 21.063 26.406 20.894 26.722C20.103 28.208 20.082 28.384 20.137 28.986C20.181 29.474 21.953 30.573 22.935 31.183C23.164 31.325 23.35 31.44 23.461 31.515C23.559 31.581 23.727 31.683 23.941 31.813C25.017 32.467 27.231 33.813 27.231 34.623C27.231 35.593 24.153 38.13 23.181 38.76C22.211 39.39 19.569 40.768 18.444 40.978C17.32 41.188 15.564 39.917 14.54 38.012C13.577 36.221 14.333 34.453 14.946 33.022L15.061 32.752C15.62 31.43 14.828 30.634 14.289 30.094C14.2299 30.0348 14.1715 29.9748 14.114 29.914L8.724 24.197C8.566 24.03 8.408 23.877 8.256 23.729C7.528 23.022 6.91 22.421 6.91 20.887C6.91 19.032 14.099 10.351 14.099 10.351C14.099 10.351 20.165 11.508 20.983 11.508C21.636 11.508 22.896 11.075 24.21 10.623C24.543 10.509 24.879 10.393 25.21 10.283C26.845 9.738 27.936 9.734 27.936 9.734C27.936 9.734 29.026 9.738 30.662 10.283C30.992 10.393 31.329 10.509 31.662 10.623C32.975 11.075 34.236 11.508 34.888 11.508ZM33.847 42.214C35.129 42.874 36.039 43.342 36.383 43.557C36.828 43.835 36.557 44.36 36.151 44.647C35.746 44.932 30.298 49.146 29.77 49.612L29.555 49.803C29.046 50.262 28.396 50.847 27.935 50.847C27.475 50.847 26.825 50.261 26.315 49.803L26.102 49.612C25.572 49.146 20.125 44.932 19.72 44.646C19.315 44.36 19.043 43.836 19.488 43.556C19.832 43.342 20.743 42.873 22.027 42.212L23.247 41.583C25.167 40.591 27.562 39.746 27.936 39.746C28.309 39.746 30.703 40.59 32.625 41.583C33.061 41.809 33.47 42.021 33.847 42.214Z"
+                    fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M43.34 6.334L37.751 0H18.12L12.531 6.334C12.531 6.334 7.623 4.972 5.306 7.287C5.306 7.287 11.85 6.697 14.099 10.351C14.099 10.351 20.165 11.508 20.983 11.508C21.801 11.508 23.573 10.828 25.209 10.283C26.845 9.738 27.936 9.734 27.936 9.734C27.936 9.734 29.026 9.738 30.662 10.283C32.298 10.828 34.07 11.508 34.888 11.508C35.706 11.508 41.773 10.351 41.773 10.351C44.022 6.697 50.565 7.287 50.565 7.287C48.248 4.972 43.34 6.334 43.34 6.334Z"
+                    fill="url(#paint1_linear_1_88)" />
+            </g>
+            <defs>
+                <linearGradient id="paint0_linear_1_88" x1="0.671" y1="64.319" x2="55.2" y2="64.319"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF5500" />
+                    <stop offset="0.41" stop-color="#FF5500" />
+                    <stop offset="0.582" stop-color="#FF2000" />
+                    <stop offset="1" stop-color="#FF2000" />
+                </linearGradient>
+                <linearGradient id="paint1_linear_1_88" x1="6.278" y1="11.466" x2="50.565" y2="11.466"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF452A" />
+                    <stop offset="1" stop-color="#FF2000" />
+                </linearGradient>
+                <clipPath id="clip0_1_88">
+                    <rect width="56" height="64" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+        <!-- Helium Browser -->
+        <svg id="icon-helium" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1_93)">
+                <path
+                    d="M189 0H67C29.9969 0 0 29.9969 0 67V189C0 226.003 29.9969 256 67 256H189C226.003 256 256 226.003 256 189V67C256 29.9969 226.003 0 189 0Z"
+                    fill="#3450D1" />
+                <path
+                    d="M145.966 207.813L128 221L110.034 207.813L118.198 144.891L67.4689 183.379L47 174.5L49.4993 152.438L108.391 128L49.4993 103.562L47 81.5L67.4689 72.6214L118.198 111.109L110.034 48.1871L128 35L145.966 48.1871L137.802 111.109L188.531 72.6214L209 81.5L206.501 103.562L147.609 128L206.501 152.438L209 174.5L188.531 183.379L137.802 144.891L145.966 207.813Z"
+                    fill="#FBFCFF" />
+            </g>
+            <defs>
+                <clipPath id="clip0_1_93">
+                    <rect width="256" height="256" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 1. ДАННЫЕ
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const BROWSERS = [{
+            name: 'Microsoft Edge',
+            url: 'https://explore.microsoft.com/ru-ru/edge/download?form=MA13FY',
+            icon: 'icon-edge'
+        }, {
+            name: 'Google Chrome',
+            url: 'https://www.google.com/chrome/',
+            icon: 'icon-chrome'
+        }, {
+            name: 'UnGoogled Chromium',
+            url: 'https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/latest',
+            icon: 'icon-ungoogled-chromium'
+        }, {
+            name: 'Yandex Browser',
+            url: 'https://browser.yandex.ru/',
+            icon: 'icon-yandex'
+        }, {
+            name: 'Mozilla Firefox',
+            url: 'https://www.firefox.com/ru/',
+            icon: 'icon-firefox'
+        }, {
+            name: 'WaterFox',
+            url: 'https://www.waterfox.com/',
+            icon: 'icon-waterfox'
+        }, {
+            name: 'LibreWolf',
+            url: 'https://www.librewolf.net/installation/',
+            icon: 'icon-librewolf'
+        }, {
+            name: 'Opera GX',
+            url: 'https://www.opera.com/ru/gx',
+            icon: 'icon-opera-gx'
+        }, {
+            name: 'Vivaldi',
+            url: 'https://vivaldi.com/ru/',
+            icon: 'icon-vivaldi'
+        }, {
+            name: 'DuckDuckGo Private Browser',
+            url: 'https://duckduckgo.com/app',
+            icon: 'icon-duckduckgo'
+        }, {
+            name: 'Zen Browser',
+            url: 'https://zen-browser.app/download/',
+            icon: 'icon-zen'
+        }, {
+            name: 'Brave',
+            url: 'https://brave.com/',
+            icon: 'icon-brave'
+        }, {
+            name: 'Helium Browser',
+            url: 'https://helium.computer/',
+            icon: 'icon-helium'
+        }];
+
+        const BROWSER_NAMES = BROWSERS.map(b => b.name);
+
+        function getBrowserByName(name) {
+            return BROWSERS.find(b => b.name === name) || null;
+        }
+
+        // ─── НОВЫЙ РАЗДЕЛ «Потребление ОЗУ» ───
+        const CATEGORIES = [
+            { id: 'accessibility', label: 'Доступность' },
+            { id: 'usability', label: 'Удобство' },
+            { id: 'design', label: 'Дизайн' },
+            { id: 'security', label: 'Безопасность' },
+            { id: 'adBlock', label: 'Блокировка рекламы' },
+            { id: 'features', label: 'Дополнительные фишки' },
+            { id: 'performance', label: 'Производительность' },
+            { id: 'ram', label: 'Потребление ОЗУ' }
+        ];
+
+        const QUESTION_SCHEMA = {
+            accessibility: [
+                { id: 'free', label: 'Бесплатный', type: 'toggle' },
+                { id: 'fullyFree', label: 'Полностью бесплатный', type: 'toggle' },
+                { id: 'openSource', label: 'Открытый исходный код', type: 'toggle' }
+            ],
+            usability: [
+                { id: 'fewControls', label: 'Немного пунктов в панели управления', type: 'toggle' },
+                {
+                    id: 'setupTime', label: 'Быстрая настройка', type: 'number', unit: 'сек', derive: (v) => v < 10 ?
+                        'быстрая' : 'медленная', check: (v) => v < 10
+                },
+                { id: 'deleteButtons', label: 'Есть кнопки удаления и скрытия файлов из загрузок', type: 'toggle' },
+                { id: 'passwordManager', label: 'Есть менеджер паролей', type: 'toggle' },
+                { id: 'streams', label: 'Работают стримы', type: 'toggle', helpUrl: 'https://m.youtube.com/Live' },
+                { id: 'figma', label: 'Работает редактор в Figma', type: 'toggle', helpUrl: 'https://www.figma.com/design/new' },
+                { id: 'movieServices', label: 'Работают защищённые плееры', type: 'toggle', helpUrl: 'https://drmnow.ru/check/' },
+                { id: 'tabGrouping', label: 'Группировка вкладок', type: 'toggle' },
+                { id: 'incognitoButton', label: 'Появление режима Инкогнито при ПКМ на "+"', type: 'toggle' },
+                { id: 'restoreSession', label: 'По умолчанию открывает вкладки с прошлой сессии', type: 'toggle' }
+            ],
+            design: [
+                { id: 'tidy', label: 'Выглядит опрятно', type: 'toggle' },
+                { id: 'beautiful', label: 'Выглядит красиво', type: 'toggle' },
+                { id: 'customizability', label: 'Кастомизируемый', type: 'smiley' }
+            ],
+            security: [
+                { id: 'disableDataSending', label: 'Предлагает с самого начала отключить отправку данных', type: 'toggle' },
+                { id: 'noDataSending', label: 'Не отправляет данные пользователя без его спроса', type: 'toggle' },
+                { id: 'searchEngineChange', label: 'Замена поисковой системы', type: 'toggle' },
+                { id: 'noAI', label: 'Не поглотил ИИ', type: 'toggle' }
+            ],
+            adBlock: [
+                { id: 'hideAds', label: 'Скрывает рекламу', type: 'toggle' },
+                { id: 'uBlockSupport', label: 'Поддерживает uBlock Origin (не Lite)', type: 'toggle' }
+            ],
+            features: [
+                { id: 'photoSearch', label: 'Поиск по фото', type: 'toggle' },
+                { id: 'textTranslation', label: 'Перевод текста', type: 'toggle' },
+                { id: 'fullTextTranslation', label: 'Перевод текста без ошибок', type: 'toggle' },
+                { id: 'videoTranslation', label: 'Перевод видео', type: 'toggle' },
+                { id: 'summary', label: 'Пересказ статьи / видео', type: 'toggle' }
+            ],
+            performance: [
+                {
+                    id: 'loadSpeed', label: 'Быстро загружает страницы', type: 'float', unit: 'индекс',
+                    derive: (v) => v >= 2.5 ? 'быстро' : 'медленно', check: (v) => v >= 2.5,
+                    helpUrl: 'https://browserbench.org/Speedometer2.1/'
+                },
+                { id: 'noGifLag', label: 'Не лагает на страницах с GIF-изображениями', type: 'toggle', helpUrl: 'https://tenor.com/' }
+            ],
+            ram: [
+                {
+                    id: 'ramUsageEmpty', label: 'На пустой странице', type: 'number', unit: 'МБ',
+                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    helpUrl: 'about:blank'
+                },
+                {
+                    id: 'ramUsageYouTube', label: 'На странице видео с YouTube', type: 'number', unit: 'МБ',
+                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    helpUrl: 'https://youtu.be/Afu8IboxuBQ?t=0'
+                },
+                {
+                    id: 'ramUsageZen', label: 'На странице списка видео с Дзен', type: 'number', unit: 'МБ',
+                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    helpUrl: 'https://m.dzen.ru/video'
+                },
+                {
+                    id: 'ramUsageGame', label: 'На странице с игрой (Geometry Dash)', type: 'number', unit: 'МБ',
+                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    helpUrl: 'https://geometrydash.com'
+                }
+            ]
+        };
+
+        function defaultQuestionValue(q) {
+            if (q.type === 'toggle') return false;
+            if (q.type === 'smiley') return 0;
+            if (q.type === 'number' || q.type === 'float') return '';
+            return '';
+        }
+
+        let formData = {};
+        BROWSER_NAMES.forEach(b => {
+            formData[b] = {};
+            CATEGORIES.forEach(c => {
+                formData[b][c.id] = {};
+                QUESTION_SCHEMA[c.id].forEach(q => {
+                    formData[b][c.id][q.id] = defaultQuestionValue(q);
+                });
+            });
+        });
+
+        let currentBrowserIdx = 0;
+        let currentCategoryIdx = 0;
+
+        const slider = document.getElementById('slider');
+        const viewportWrap = document.getElementById('viewportWrap');
+        const formView = document.getElementById('formView');
+        const resultsView = document.getElementById('resultsView');
+        const mainActionBtn = document.getElementById('mainActionBtn');
+        const resetAllBtn = document.getElementById('resetAllBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFileInput = document.getElementById('importFileInput');
+
+        function buildForm() {
+            slider.innerHTML = '';
+            BROWSERS.forEach((b, bi) => {
+                const browserName = b.name;
+                const row = document.createElement('div');
+                row.className = 'view-row';
+                row.dataset.browserIdx = bi;
+
+                CATEGORIES.forEach((cat, ci) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'view-cell';
+                    cell.dataset.browserIdx = bi;
+                    cell.dataset.catIdx = ci;
+
+                    const header = document.createElement('div');
+                    header.className = 'cell-header';
+
+                    const catNameSpan = document.createElement('span');
+                    catNameSpan.className = 'cat-name';
+                    catNameSpan.textContent = cat.label;
+                    header.appendChild(catNameSpan);
+
+                    const browserLink = document.createElement('a');
+                    browserLink.className = 'browser-info';
+                    browserLink.href = b.url;
+                    browserLink.target = '_blank';
+                    browserLink.title = 'Скачать ' + browserName;
+
+                    const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    iconSvg.setAttribute('class', 'browser-icon');
+
+                    const iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                    iconUse.setAttribute('href', `#${b.icon}`);
+
+                    iconSvg.appendChild(iconUse);
+
+                    browserLink.appendChild(iconSvg);
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'browser-name';
+                    nameSpan.textContent = browserName;
+                    browserLink.appendChild(nameSpan);
+
+                    header.appendChild(browserLink);
+
+                    const badge = document.createElement('span');
+                    badge.className = 'badge';
+                    badge.textContent = `${ci + 1}/${CATEGORIES.length} · ${bi + 1}/${BROWSERS.length}`;
+                    header.appendChild(badge);
+
+                    cell.appendChild(header);
+
+                    const body = document.createElement('div');
+                    body.className = 'cell-body';
+
+                    const questions = QUESTION_SCHEMA[cat.id] || [];
+                    questions.forEach(q => {
+                        const rowEl = document.createElement('div');
+                        rowEl.className = 'field-row';
+                        rowEl.dataset.qid = q.id;
+                        rowEl.dataset.cat = cat.id;
+                        rowEl.dataset.browser = browserName;
+
+                        const labelSpan = document.createElement('span');
+                        labelSpan.className = 'field-label';
+                        const textNode = document.createTextNode(q.label);
+                        labelSpan.appendChild(textNode);
+                        if (q.helpUrl) {
+                            const helpLink = document.createElement('a');
+                            helpLink.href = q.helpUrl;
+                            helpLink.target = '_blank';
+                            helpLink.textContent = 'i';
+                            helpLink.className = 'help-btn';
+                            helpLink.title = 'Проверить';
+                            labelSpan.appendChild(helpLink);
+                        }
+                        rowEl.appendChild(labelSpan);
+
+                        const val = formData[browserName][cat.id][q.id] ?? defaultQuestionValue(q);
+
+                        if (q.type === 'toggle') {
+                            const status = document.createElement('span');
+                            status.className = 'toggle-status';
+                            status.textContent = val ? 'Да' : 'Нет';
+                            rowEl.appendChild(status);
+
+                            const wrap = document.createElement('div');
+                            wrap.className = 'toggle-custom';
+                            const input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.id = `t-${bi}-${ci}-${q.id}`;
+                            input.checked = !!val;
+                            const track = document.createElement('label');
+                            track.htmlFor = input.id;
+                            track.className = 'track';
+                            const thumb = document.createElement('span');
+                            thumb.className = 'thumb';
+                            thumb.textContent = input.checked ? '✅' : '❌';
+                            track.appendChild(thumb);
+                            wrap.appendChild(input);
+                            wrap.appendChild(track);
+                            rowEl.appendChild(wrap);
+
+                            input.addEventListener('change', () => {
+                                const ch = input.checked;
+                                formData[browserName][cat.id][q.id] = ch;
+                                thumb.textContent = ch ? '✅' : '❌';
+                                status.textContent = ch ? 'Да' : 'Нет';
+                            });
+
+                        } else if (q.type === 'smiley') {
+                            const derived = document.createElement('span');
+                            derived.className = 'smiley-derived';
+                            const smileyLabels = ['вообще не', 'чуть-чуть', 'почти полностью', 'полностью'];
+                            const initIdx = typeof val === 'number' ? val : 0;
+                            derived.textContent = smileyLabels[initIdx] || '—';
+                            rowEl.appendChild(derived);
+
+                            const group = document.createElement('div');
+                            group.className = 'smiley-group';
+                            const smileys = ['😕', '😐', '🙂', '😁'];
+                            const labels = ['вообще не', 'чуть-чуть', 'почти полностью', 'полностью'];
+                            smileys.forEach((s, idx2) => {
+                                const id = `s-${bi}-${ci}-${q.id}-${idx2}`;
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.name = `sm-${bi}-${ci}-${q.id}`;
+                                radio.id = id;
+                                radio.value = idx2;
+                                if (val === idx2) radio.checked = true;
+                                const lbl = document.createElement('label');
+                                lbl.htmlFor = id;
+                                lbl.textContent = s;
+                                lbl.title = labels[idx2];
+                                group.appendChild(radio);
+                                group.appendChild(lbl);
+                                radio.addEventListener('change', () => {
+                                    if (radio.checked) {
+                                        formData[browserName][cat.id][q.id] = idx2;
+                                        derived.textContent = labels[idx2];
+                                    }
+                                });
+                            });
+                            rowEl.appendChild(group);
+
+                        } else if (q.type === 'number' || q.type === 'float') {
+                            const derived = document.createElement('span');
+                            derived.className = 'field-derived';
+                            derived.textContent = '—';
+                            rowEl.appendChild(derived);
+
+                            const input = document.createElement('input');
+                            input.type = 'number';
+                            input.className = 'field-input';
+                            input.step = q.type === 'float' ? '0.1' : '1';
+                            input.placeholder = '0';
+                            if (q.id === 'setupTime') {
+                                input.min = '0';
+                            }
+                            if (val !== '') input.value = val;
+                            rowEl.appendChild(input);
+
+                            if (q.unit) {
+                                const unit = document.createElement('span');
+                                unit.className = 'field-unit';
+                                unit.textContent = q.unit;
+                                rowEl.appendChild(unit);
+                            }
+
+                            input.addEventListener('input', () => {
+                                const v = input.value;
+                                const num = parseFloat(v);
+                                formData[browserName][cat.id][q.id] = isNaN(num) ? '' : num;
+                                updateDerivedNumber(rowEl, browserName, cat.id, q.id);
+                            });
+                            if (val !== '' && !isNaN(val)) {
+                                updateDerivedNumber(rowEl, browserName, cat.id, q.id);
+                            }
+                        }
+
+                        body.appendChild(rowEl);
+                    });
+
+                    cell.appendChild(body);
+
+                    const arrows = [
+                        {
+                            id: `prevCat-${bi}-${ci}`, dir: 'prevCategory', cls: 'nav-arrow-left',
+                            svg: '<path d="M15 18l-6-6 6-6"/>'
+                        },
+                        {
+                            id: `nextCat-${bi}-${ci}`, dir: 'nextCategory', cls: 'nav-arrow-right',
+                            svg: '<path d="M9 18l6-6-6-6"/>'
+                        },
+                        {
+                            id: `prevBr-${bi}-${ci}`, dir: 'prevBrowser', cls: 'nav-arrow-up',
+                            svg: '<path d="M18 15l-6-6-6 6"/>'
+                        },
+                        {
+                            id: `nextBr-${bi}-${ci}`, dir: 'nextBrowser', cls: 'nav-arrow-down',
+                            svg: '<path d="M6 9l6 6 6-6"/>'
+                        }
+                    ];
+                    arrows.forEach(a => {
+                        const btn = document.createElement('button');
+                        btn.className = `nav-arrow ${a.cls}`;
+                        btn.id = a.id;
+                        btn.innerHTML = `<svg viewBox="0 0 24 24">${a.svg}</svg>`;
+                        btn.dataset.dir = a.dir;
+                        btn.dataset.bi = bi;
+                        btn.dataset.ci = ci;
+                        cell.appendChild(btn);
+                        btn.addEventListener('click', () => {
+                            if (bi === currentBrowserIdx && ci === currentCategoryIdx) {
+                                navigate(a.dir);
+                            }
+                        });
+                    });
+
+                    row.appendChild(cell);
+                });
+                slider.appendChild(row);
+            });
+
+            updateVisibility();
+            positionSlider(false);
+            bindArrowClicks();
+        }
+
+        function updateDerivedNumber(rowEl, browserName, catId, qId) {
+            const q = QUESTION_SCHEMA[catId]?.find(q => q.id === qId);
+            if (!q || !q.derive) return;
+            const val = formData[browserName][catId][qId];
+            const target = rowEl.querySelector('.field-derived');
+            if (!target) return;
+            if (val === '' || val === undefined || val === null || isNaN(val)) {
+                target.textContent = '—';
+                target.className = 'field-derived';
+                return;
+            }
+            const d = q.derive(val);
+            const isYes = d === 'быстро' || d === 'мало' || d === 'быстрая';
+            target.textContent = d;
+            target.className = 'field-derived';
+            if (d) {
+                target.classList.add(isYes ? 'yes' : 'no');
+            }
+        }
+
+        function navigate(dir) {
+            let newBi = currentBrowserIdx;
+            let newCi = currentCategoryIdx;
+            switch (dir) {
+                case 'nextCategory':
+                    if (currentCategoryIdx < CATEGORIES.length - 1) newCi = currentCategoryIdx + 1;
+                    else return;
+                    break;
+                case 'prevCategory':
+                    if (currentCategoryIdx > 0) newCi = currentCategoryIdx - 1;
+                    else return;
+                    break;
+                case 'nextBrowser':
+                    if (currentBrowserIdx < BROWSERS.length - 1) newBi = currentBrowserIdx + 1;
+                    else return;
+                    break;
+                case 'prevBrowser':
+                    if (currentBrowserIdx > 0) newBi = currentBrowserIdx - 1;
+                    else return;
+                    break;
+                default:
+                    return;
+            }
+            if (newBi === currentBrowserIdx && newCi === currentCategoryIdx) return;
+            currentBrowserIdx = newBi;
+            currentCategoryIdx = newCi;
+            positionSlider(true);
+            updateVisibility();
+        }
+
+        function positionSlider(animate) {
+            const rect = document.getElementsByClassName('view-cell')[0]?.getBoundingClientRect();
+            const w = rect?.width || 600;
+            const h = rect?.height || 400;
+            const offsetX = -currentCategoryIdx * w;
+            const offsetY = -currentBrowserIdx * h;
+            if (!animate) {
+                slider.style.transition = 'none';
+            } else {
+                slider.style.transition = 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
+            }
+            slider.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            if (!animate) {
+                requestAnimationFrame(() => {
+                    slider.style.transition = 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
+                });
+            }
+        }
+
+        function updateVisibility() {
+            document.querySelectorAll('.nav-arrow').forEach(b => b.classList.add('nav-arrow-hidden'));
+            const cellArrows = document.querySelectorAll(
+                `.view-cell[data-browser-idx="${currentBrowserIdx}"][data-cat-idx="${currentCategoryIdx}"] .nav-arrow`
+            );
+            cellArrows.forEach(btn => {
+                const dir = btn.dataset.dir;
+                let vis = false;
+                switch (dir) {
+                    case 'prevCategory':
+                        vis = currentCategoryIdx > 0;
+                        break;
+                    case 'nextCategory':
+                        vis = currentCategoryIdx < CATEGORIES.length - 1;
+                        break;
+                    case 'prevBrowser':
+                        vis = currentBrowserIdx > 0;
+                        break;
+                    case 'nextBrowser':
+                        vis = currentBrowserIdx < BROWSERS.length - 1;
+                        break;
+                }
+                btn.classList.toggle('nav-arrow-hidden', !vis);
+            });
+        }
+
+        function bindArrowClicks() { }
+
+        function getAllQuestions() {
+            const result = [];
+            CATEGORIES.forEach(cat => {
+                const qs = QUESTION_SCHEMA[cat.id] || [];
+                qs.forEach(q => {
+                    result.push({
+                        catId: cat.id,
+                        catLabel: cat.label,
+                        qId: q.id,
+                        label: q.label,
+                        type: q.type,
+                        unit: q.unit || '',
+                        derive: q.derive || null,
+                        check: q.check || null
+                    });
+                });
+            });
+            return result;
+        }
+
+        function getValueDisplay(browserName, catId, qId, qType, qUnit, qDerive) {
+            const val = formData[browserName]?.[catId]?.[qId];
+            if (val === undefined || val === null) return '—';
+
+            if (qType === 'toggle') {
+                return val ? '✅' : '❌';
+            } else if (qType === 'smiley') {
+                const labels = ['вообще не', 'чуть-чуть', 'почти полностью', 'полностью'];
+                const idx = typeof val === 'number' ? val : 0;
+                const prefix = idx >= 2 ? '✅' : '❌';
+                return `${prefix} (${labels[idx] || '—'})`;
+            } else if (qType === 'number' || qType === 'float') {
+                if (val === '' || isNaN(val)) return '—';
+                let display = val + (qUnit && qUnit !== 'индекс' ? ' ' + qUnit : '');
+                if (qDerive) {
+                    const d = qDerive(val);
+                    if (d) {
+                        const isGood = d === 'быстро' || d === 'мало' || d === 'быстрая';
+                        display += ` <span class="val-derived ${isGood ? 'good' : 'bad'}">(${d})</span>`;
+                    }
+                }
+                return display;
+            }
+            return String(val);
+        }
+
+        function getRawValue(browserName, catId, qId) {
+            return formData[browserName]?.[catId]?.[qId];
+        }
+
+        function renderSummaryTable() {
+            const wrap = document.getElementById('summaryTableWrap');
+            const allQuestions = getAllQuestions();
+
+            let html = `<table><thead><tr><th>Параметр</th>`;
+            BROWSERS.forEach(b => {
+                const iconHtml = b.icon ?
+                    `<svg class="th-icon"><use href="#${b.icon}"></use></svg>` :
+                    '';
+                html += `<th><span class="th-browser">
+                            <a href="${b.url}" target="_blank" class="th-link" title="Скачать ${b.name}">
+                                ${iconHtml} ${b.name}
+                            </a>
+                         </span></th>`;
+            });
+            html += `</tr></thead><tbody>`;
+
+            allQuestions.forEach(q => {
+                html += `<tr>`;
+                html += `<td class="param-name">${q.label}<span class="param-cat">${q.catLabel}</span></td>`;
+                BROWSERS.forEach(b => {
+                    const display = getValueDisplay(b.name, q.catId, q.qId, q.type, q.unit, q.derive);
+                    let cls = '';
+                    if (q.type === 'toggle') {
+                        const raw = getRawValue(b.name, q.catId, q.qId);
+                        cls = raw ? 'val-yes' : 'val-no';
+                    } else if (q.type === 'smiley') {
+                        cls = 'val-smiley';
+                    } else {
+                        cls = 'val-number';
+                    }
+                    html += `<td class="${cls}">${display}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            wrap.innerHTML = html;
+        }
+
+        const TIER_NAMES = [
+            '5+ (лучший браузер)',
+            '5',
+            '5 (без защиты)',
+            '4',
+            '4 (без защиты)',
+            '3',
+            '2 (самые ужасные)'
+        ];
+
+        let tierState = {};
+        let dragData = { element: null, sourceTier: null, itemText: '' };
+
+        function initTierState() {
+            tierState = {};
+            TIER_NAMES.forEach(t => { tierState[t] = []; });
+        }
+
+        function autoTier() {
+            const scores = computeScores();
+            TIER_NAMES.forEach(t => { tierState[t] = []; });
+
+            BROWSERS.forEach(b => {
+                const total = scores[b.name].total;
+                const security = scores[b.name].securityScore;
+                let tier = '3';
+
+                if (security >= 3) {
+                    if (total >= 20) tier = '5+ (лучший браузер)';
+                    else if (total >= 15) tier = '5';
+                    else if (total >= 10) tier = '4';
+                    else tier = '3';
+                } else {
+                    if (total >= 15) tier = '5 (без защиты)';
+                    else if (total >= 10) tier = '4 (без защиты)';
+                    else if (total >= 5) tier = '3';
+                    else tier = '2 (самые ужасные)';
+                }
+                if (tierState[tier]) {
+                    tierState[tier].push(b.name);
+                } else {
+                    if (!tierState['3']) tierState['3'] = [];
+                    tierState['3'].push(b.name);
+                }
+            });
+        }
+
+        function renderTierList() {
+            const wrap = document.getElementById('tierListWrap');
+            wrap.innerHTML = '';
+            TIER_NAMES.forEach(tierName => {
+                const row = document.createElement('div');
+                row.className = 'tier-row';
+                row.dataset.tier = tierName;
+
+                const label = document.createElement('div');
+                label.className = 'tier-label';
+                label.textContent = tierName;
+                row.appendChild(label);
+
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'tier-items';
+                itemsContainer.dataset.tier = tierName;
+
+                const items = tierState[tierName] || [];
+                if (items.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.className = 'tier-empty';
+                    empty.textContent = 'пусто';
+                    itemsContainer.appendChild(empty);
+                } else {
+                    items.forEach(itemName => {
+                        const b = getBrowserByName(itemName);
+                        const el = document.createElement('div');
+                        el.className = 'tier-item';
+                        el.draggable = true;
+                        el.dataset.item = itemName;
+
+                        if (b && b.icon) {
+                            const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            iconSvg.setAttribute('class', 'tier-icon');
+
+                            const iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                            iconUse.setAttribute('href', `#${b.icon}`);
+
+                            iconSvg.appendChild(iconUse);
+
+                            el.appendChild(iconSvg);
+                        }
+
+                        const nameSpan = document.createElement('span');
+                        nameSpan.textContent = itemName;
+                        el.appendChild(nameSpan);
+
+                        el.addEventListener('dragstart', onTierDragStart);
+                        el.addEventListener('dragend', onTierDragEnd);
+                        el.addEventListener('drag', (e) => e.preventDefault());
+
+                        itemsContainer.appendChild(el);
+                    });
+                }
+
+                row.appendChild(itemsContainer);
+                row.addEventListener('dragover', onTierDragOver);
+                row.addEventListener('dragenter', onTierDragEnter);
+                row.addEventListener('dragleave', onTierDragLeave);
+                row.addEventListener('drop', onTierDrop);
+
+                wrap.appendChild(row);
+            });
+        }
+
+        function onTierDragStart(e) {
+            const el = e.target.closest('.tier-item');
+            if (!el) return;
+            dragData.element = el;
+            dragData.itemText = el.dataset.item;
+            const parent = el.parentElement;
+            dragData.sourceTier = parent?.dataset?.tier || null;
+            el.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', dragData.itemText);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onTierDragEnd(e) {
+            const el = e.target.closest('.tier-item');
+            if (el) el.classList.remove('dragging');
+            document.querySelectorAll('.tier-row').forEach(r => r.classList.remove('drag-over'));
+            dragData.element = null;
+            dragData.sourceTier = null;
+            dragData.itemText = '';
+        }
+
+        function onTierDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function onTierDragEnter(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function onTierDragLeave(e) {
+            const target = e.currentTarget;
+            const related = e.relatedTarget;
+            if (related && target.contains(related)) return;
+            target.classList.remove('drag-over');
+        }
+
+        function onTierDrop(e) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            target.classList.remove('drag-over');
+            const tierName = target.dataset.tier;
+            if (!tierName) return;
+            const itemText = e.dataTransfer.getData('text/plain');
+            if (!itemText) return;
+            const source = dragData.sourceTier;
+            if (!source || source === tierName) return;
+            if (!tierState[source] || !tierState[source].includes(itemText)) return;
+            tierState[source] = tierState[source].filter(i => i !== itemText);
+            tierState[tierName].push(itemText);
+            renderTierList();
+        }
+
+        function computeScores() {
+            const scores = {};
+            BROWSERS.forEach(b => {
+                const browserName = b.name;
+                let total = 0;
+                let securityScore = 0;
+                CATEGORIES.forEach(c => {
+                    const data = formData[browserName][c.id] || {};
+                    const qs = QUESTION_SCHEMA[c.id] || [];
+                    let catScore = 0;
+                    qs.forEach(q => {
+                        let val = data[q.id];
+                        let isYes = false;
+                        if (q.type === 'toggle') {
+                            isYes = !!val;
+                            if (isYes) catScore++;
+                        } else if (q.type === 'smiley') {
+                            const idx = typeof val === 'number' ? val : 0;
+                            isYes = idx >= 2;
+                            if (isYes) catScore++;
+                        } else if (q.type === 'number' || q.type === 'float') {
+                            if (val === '' || val === undefined || val === null || isNaN(val)) {
+                                isYes = false;
+                            } else {
+                                const num = typeof val === 'number' ? val : parseFloat(val);
+                                if (q.check) {
+                                    isYes = q.check(num);
+                                } else {
+                                    isYes = false;
+                                }
+                                if (isYes) catScore++;
+                            }
+                        }
+                    });
+                    if (c.id === 'security') {
+                        securityScore = catScore;
+                    }
+                    total += catScore;
+                });
+                scores[browserName] = { total, securityScore };
+            });
+            return scores;
+        }
+
+        function renderTop5() {
+            const scores = computeScores();
+            const wrap = document.getElementById('top5Wrap');
+
+            const withProtection = BROWSERS
+                .map(b => ({
+                    name: b.name, score: scores[b.name].total, security: scores[b.name].securityScore, icon: b
+                        .icon, url: b.url
+                }))
+                .filter(item => item.security >= 3)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            const withoutProtection = BROWSERS
+                .map(b => ({
+                    name: b.name, score: scores[b.name].total, security: scores[b.name].securityScore, icon: b
+                        .icon, url: b.url
+                }))
+                .filter(item => item.security < 3)
+                .sort((a, b) => b.score - a.score);
+
+            let html = `
+                <div class="top5-section">
+                    <h4>🛡️ Топ-5 с защитой конфиденциальных данных</h4>
+                    <div class="top5-list">
+            `;
+            if (withProtection.length === 0) {
+                html += `<div style="color:#666;padding:6px 0;">Нет браузеров с защитой</div>`;
+            } else {
+                withProtection.forEach((item, i) => {
+                    const iconHtml = item.icon ?
+                        `<svg class="top5-icon"><use href="#${item.icon}"></use></svg>` :
+                        '';
+                    html += `<div class="top5-item">
+                                <span class="top5-left">
+                                    <a href="${item.url}" target="_blank" class="top5-link" title="Скачать ${item.name}">
+                                        ${iconHtml}
+                                        ${item.name}
+                                    </a>
+                                </span>
+                                <span class="score">${item.score} баллов</span>
+                             </div>`;
+                });
+            }
+            html += `</div></div>`;
+            html += `<hr class="top5-divider" />`;
+            html += `
+                <div class="top5-section">
+                    <h4>⚠️ Без защиты конфиденциальных данных и с плохими местами</h4>
+                    <div class="top5-list">
+            `;
+            if (withoutProtection.length === 0) {
+                html += `<div style="color:#666;padding:6px 0;">Нет браузеров без защиты</div>`;
+            } else {
+                const startRank = withProtection.length + 1;
+                withoutProtection.forEach((item, i) => {
+                    const iconHtml = item.icon ?
+                        `<svg class="top5-icon"><use href="#${item.icon}"></use></svg>` :
+                        '';
+                    html += `<div class="top5-item">
+                                <span class="top5-left">
+                                    <span class="rank">#${startRank + i}</span>
+                                    <a href="${item.url}" target="_blank" class="top5-link" title="Скачать ${item.name}">
+                                        ${iconHtml}
+                                        ${item.name}
+                                    </a>
+                                </span>
+                                <span class="score">${item.score} баллов</span>
+                             </div>`;
+                });
+            }
+            html += `</div></div>`;
+            wrap.innerHTML = html;
+        }
+
+        function renderResults() {
+            autoTier();
+            renderSummaryTable();
+            renderTierList();
+            renderTop5();
+        }
+
+        function showForm() {
+            currentBrowserIdx = 0;
+            currentCategoryIdx = 0;
+            formView.classList.add('active');
+            resultsView.classList.remove('active');
+            positionSlider(false);
+            updateVisibility();
+
+            mainActionBtn.textContent = '📊 Результаты';
+            mainActionBtn.className = 'btn btn-purple';
+            mainActionBtn.onclick = function () {
+                showResults();
+            };
+        }
+
+        function showResults() {
+            renderResults();
+            formView.classList.remove('active');
+            resultsView.classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            const firstBtn = document.querySelector('.tab-btn');
+            if (firstBtn) {
+                firstBtn.classList.add('active');
+                const panel = document.getElementById('panel-' + firstBtn.dataset.tab);
+                if (panel) panel.classList.add('active');
+            }
+
+            mainActionBtn.textContent = '⚙️ Настройка';
+            mainActionBtn.className = 'btn btn-cyan';
+            mainActionBtn.onclick = function () {
+                showForm();
+            };
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                const panel = document.getElementById('panel-' + this.dataset.tab);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        resetAllBtn.addEventListener('click', function () {
+            if (!confirm('Сбросить все данные и тир-лист?')) return;
+            BROWSER_NAMES.forEach(b => {
+                CATEGORIES.forEach(c => {
+                    QUESTION_SCHEMA[c.id].forEach(q => {
+                        formData[b][c.id][q.id] = defaultQuestionValue(q);
+                    });
+                });
+            });
+            initTierState();
+            buildForm();
+            showForm();
+        });
+
+        function exportCSV() {
+            const lines = [];
+            lines.push('FORM_DATA');
+            lines.push('Category,Question,Browser,Value');
+
+            const allQuestions = getAllQuestions();
+            allQuestions.forEach(q => {
+                BROWSER_NAMES.forEach(b => {
+                    const raw = getRawValue(b, q.catId, q.qId);
+                    let valStr = '';
+                    if (raw === undefined || raw === null || raw === '') {
+                        valStr = '';
+                    } else if (typeof raw === 'boolean') {
+                        valStr = raw ? 'true' : 'false';
+                    } else if (typeof raw === 'number') {
+                        valStr = String(raw);
+                    } else {
+                        valStr = String(raw);
+                    }
+                    const cat = q.catId;
+                    const question = q.label.replace(/"/g, '""');
+                    const browser = b.replace(/"/g, '""');
+                    lines.push(`"${cat}","${question}","${browser}","${valStr}"`);
+                });
+            });
+
+            lines.push('');
+            lines.push('TIER_LIST');
+            lines.push('Tier,Browser');
+            TIER_NAMES.forEach(tier => {
+                const items = tierState[tier] || [];
+                items.forEach(b => {
+                    const tierEsc = tier.replace(/"/g, '""');
+                    const bEsc = b.replace(/"/g, '""');
+                    lines.push(`"${tierEsc}","${bEsc}"`);
+                });
+            });
+
+            const csv = lines.join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'browser_rating.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importCSV(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    let mode = null;
+                    let newFormData = JSON.parse(JSON.stringify(formData));
+                    let newTierState = JSON.parse(JSON.stringify(tierState));
+
+                    TIER_NAMES.forEach(t => { newTierState[t] = []; });
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i];
+                        if (line === 'FORM_DATA') {
+                            mode = 'form';
+                            i++;
+                            continue;
+                        } else if (line === 'TIER_LIST') {
+                            mode = 'tier';
+                            i++;
+                            continue;
+                        }
+
+                        if (mode === 'form') {
+                            const parts = parseCSVLine(line);
+                            if (parts.length >= 4) {
+                                const catId = parts[0];
+                                const question = parts[1];
+                                const browser = parts[2];
+                                const valStr = parts[3];
+                                const qDef = getAllQuestions().find(q => q.label === question && q.catId === catId);
+                                if (qDef && BROWSER_NAMES.includes(browser)) {
+                                    let parsedVal;
+                                    if (qDef.type === 'toggle') {
+                                        parsedVal = valStr === 'true';
+                                    } else if (qDef.type === 'smiley') {
+                                        parsedVal = parseInt(valStr) || 0;
+                                    } else if (qDef.type === 'number' || qDef.type === 'float') {
+                                        parsedVal = valStr === '' ? '' : parseFloat(valStr);
+                                    } else {
+                                        parsedVal = valStr;
+                                    }
+                                    if (newFormData[browser] && newFormData[browser][catId]) {
+                                        newFormData[browser][catId][qDef.qId] = parsedVal;
+                                    }
+                                }
+                            }
+                        } else if (mode === 'tier') {
+                            const parts = parseCSVLine(line);
+                            if (parts.length >= 2) {
+                                const tier = parts[0];
+                                const browser = parts[1];
+                                if (TIER_NAMES.includes(tier) && BROWSER_NAMES.includes(browser)) {
+                                    if (!newTierState[tier]) newTierState[tier] = [];
+                                    if (!newTierState[tier].includes(browser)) {
+                                        newTierState[tier].push(browser);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    BROWSER_NAMES.forEach(b => {
+                        let found = false;
+                        TIER_NAMES.forEach(t => {
+                            if (newTierState[t] && newTierState[t].includes(b)) found = true;
+                        });
+                        if (!found) {
+                            if (!newTierState['3']) newTierState['3'] = [];
+                            newTierState['3'].push(b);
+                        }
+                    });
+
+                    formData = newFormData;
+                    tierState = newTierState;
+                    buildForm();
+                    showForm();
+                    alert('✅ Данные успешно загружены!');
+                } catch (err) {
+                    alert('❌ Ошибка при импорте: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        exportBtn.addEventListener('click', exportCSV);
+        importBtn.addEventListener('click', function () {
+            importFileInput.click();
+        });
+        importFileInput.addEventListener('change', function (e) {
+            if (this.files && this.files.length > 0) {
+                importCSV(this.files[0]);
+                this.value = '';
+            }
+        });
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (formView.style.display !== 'none') {
+                    positionSlider(false);
+                }
+            }, 120);
+        });
+
+        initTierState();
+        buildForm();
+        showForm();
+
+        setTimeout(() => positionSlider(false), 80);
+        setTimeout(() => positionSlider(false), 300);
+    </script>
+</body>
+
+</html>
