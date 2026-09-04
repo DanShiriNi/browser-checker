@@ -2234,6 +2234,7 @@
 
                     const iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
                     iconUse.setAttribute('href', `#${b.icon}`);
+                    iconUse.setAttribute('xlink:href', `#${b.icon}`);
 
                     iconSvg.appendChild(iconUse);
 
@@ -2584,7 +2585,7 @@
             let html = `<table><thead><tr><th>Параметр</th>`;
             BROWSERS.forEach(b => {
                 const iconHtml = b.icon ?
-                    `<svg class="th-icon"><use href="#${b.icon}"></use></svg>` :
+                    `<svg class="th-icon"><use href="#${b.icon}" xlink:href="#${b.icon}"></use></svg>` :
                     '';
                 html += `<th><span class="th-browser">
                             <a href="${b.url}" target="_blank" class="th-link" title="Скачать ${b.name}">
@@ -2701,6 +2702,7 @@
 
                             const iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
                             iconUse.setAttribute('href', `#${b.icon}`);
+                            iconUse.setAttribute('xlink:href', `#${b.icon}`);
 
                             iconSvg.appendChild(iconUse);
 
@@ -2858,7 +2860,7 @@
             } else {
                 withProtection.forEach((item, i) => {
                     const iconHtml = item.icon ?
-                        `<svg class="top5-icon"><use href="#${item.icon}"></use></svg>` :
+                        `<svg class="top5-icon"><use href="#${item.icon}" xlink:href="#${item.url}"></use></svg>` :
                         '';
                     html += `<div class="top5-item">
                                 <span class="top5-left">
@@ -2884,7 +2886,7 @@
                 const startRank = withProtection.length + 1;
                 withoutProtection.forEach((item, i) => {
                     const iconHtml = item.icon ?
-                        `<svg class="top5-icon"><use href="#${item.icon}"></use></svg>` :
+                        `<svg class="top5-icon"><use href="#${item.icon}" xlink:href="#${item.url}""></use></svg>` :
                         '';
                     html += `<div class="top5-item">
                                 <span class="top5-left">
