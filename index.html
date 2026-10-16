@@ -2104,8 +2104,9 @@
             usability: [
                 { id: 'fewControls', label: 'Немного пунктов в панели управления', type: 'toggle' },
                 {
-                    id: 'setupTime', label: 'Быстрая настройка', type: 'number', unit: 'сек', derive: (v) => v < 10 ?
-                        'быстрая' : 'медленная', check: (v) => v < 10
+                    id: 'setupTime', label: 'Быстрая настройка', type: 'number', unit: 'сек',
+                    derive: (v) => v < getAverageValue('usability', 'setupTime') ? 'быстрая' : 'медленная',
+                    check: (v) => v < getAverageValue('usability', 'setupTime')
                 },
                 { id: 'deleteButtons', label: 'Есть кнопки удаления и скрытия файлов из загрузок', type: 'toggle' },
                 { id: 'passwordManager', label: 'Есть менеджер паролей', type: 'toggle' },
@@ -2145,29 +2146,33 @@
                 {
                     id: 'loadSpeed', label: 'Быстро загружает страницы', type: 'float', unit: 'индекс',
                     derive: (v) => v >= 2.5 ? 'быстро' : 'медленно', check: (v) => v >= 2.5,
-                    helpUrl: 'https://browserbench.org/Speedometer2.1/'
+                    helpUrl: 'https://browserbench.org/Speedometer3.1/'
                 },
                 { id: 'noGifLag', label: 'Не лагает на страницах с GIF-изображениями', type: 'toggle', helpUrl: 'https://tenor.com/' }
             ],
             ram: [
                 {
                     id: 'ramUsageEmpty', label: 'На пустой странице', type: 'number', unit: 'МБ',
-                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    derive: (v) => v < getAverageValue('ram', 'ramUsageEmpty') ? 'мало' : 'много',
+                    check: (v) => v < getAverageValue('ram', 'ramUsageEmpty'),
                     helpUrl: 'about:blank'
                 },
                 {
                     id: 'ramUsageYouTube', label: 'На странице видео с YouTube', type: 'number', unit: 'МБ',
-                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    derive: (v) => v < getAverageValue('ram', 'ramUsageYouTube') ? 'мало' : 'много',
+                    check: (v) => v < getAverageValue('ram', 'ramUsageYouTube'),
                     helpUrl: 'https://youtu.be/Afu8IboxuBQ?t=0'
                 },
                 {
                     id: 'ramUsageZen', label: 'На странице списка видео с Дзен', type: 'number', unit: 'МБ',
-                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    derive: (v) => v < getAverageValue('ram', 'ramUsageZen') ? 'мало' : 'много',
+                    check: (v) => v < getAverageValue('ram', 'ramUsageZen'),
                     helpUrl: 'https://m.dzen.ru/video'
                 },
                 {
                     id: 'ramUsageGame', label: 'На странице с игрой (Geometry Dash)', type: 'number', unit: 'МБ',
-                    derive: (v) => v < 600 ? 'мало' : 'много', check: (v) => v < 600,
+                    derive: (v) => v < getAverageValue('ram', 'ramUsageGame') ? 'мало' : 'много',
+                    check: (v) => v < getAverageValue('ram', 'ramUsageGame'),
                     helpUrl: 'https://geometrydash.com'
                 }
             ]
@@ -2190,6 +2195,14 @@
                 });
             });
         });
+
+        function getAverageValue(categoryId, questionId) {
+            const values = BROWSER_NAMES
+                .map(browserName => formData[browserName]?.[categoryId]?.[questionId])
+                .filter(value => typeof value === 'number' && Number.isFinite(value));
+            if (values.length === 0) return null;
+            return values.reduce((sum, value) => sum + value, 0) / values.length;
+        }
 
         let currentBrowserIdx = 0;
         let currentCategoryIdx = 0;
@@ -2378,7 +2391,11 @@
                                 const v = input.value;
                                 const num = parseFloat(v);
                                 formData[browserName][cat.id][q.id] = isNaN(num) ? '' : num;
-                                updateDerivedNumber(rowEl, browserName, cat.id, q.id);
+                                if (cat.id === 'ram' || q.id === 'setupTime') {
+                                    refreshDerivedNumbers(cat.id, q.id);
+                                } else {
+                                    updateDerivedNumber(rowEl, browserName, cat.id, q.id);
+                                }
                             });
                             if (val !== '' && !isNaN(val)) {
                                 updateDerivedNumber(rowEl, browserName, cat.id, q.id);
@@ -2452,6 +2469,12 @@
             if (d) {
                 target.classList.add(isYes ? 'yes' : 'no');
             }
+        }
+
+        function refreshDerivedNumbers(catId, qId) {
+            document.querySelectorAll(`.field-row[data-cat="${catId}"][data-qid="${qId}"]`).forEach(rowEl => {
+                updateDerivedNumber(rowEl, rowEl.dataset.browser, catId, qId);
+            });
         }
 
         function navigate(dir) {
